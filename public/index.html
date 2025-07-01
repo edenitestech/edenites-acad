@@ -2,42 +2,76 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    
+    <!-- Primary Meta Tags -->
+    <title>Edenites Academy - Premier Online Learning Platform</title>
+    <meta name="description" content="Edenites Academy offers specialized courses in IT, Fashion Design, Leather Crafting, and STEM subjects. Quality education with expert instructors." />
+    <meta name="keywords" content="online courses, e-learning, IT courses, fashion design, leather crafting, STEM education, JAMB, WAEC, NECO preparation" />
+    <meta name="author" content="Edenites Academy" />
+    
+    <!-- Favicon Setup -->
+    <link rel="icon" href="%PUBLIC_URL%/e-favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#2b5876" />
+    
+    <!-- Open Graph / Facebook Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://edenitesacademy.com/" />
+    <meta property="og:title" content="Edenites Academy - Premier Online Learning Platform" />
+    <meta property="og:description" content="Specialized courses in IT, Fashion Design, Leather Crafting, and STEM subjects. Quality education with expert instructors." />
+    <meta property="og:image" content="%PUBLIC_URL%/social-share-image.png" />
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Edenites Academy - Premier Online Learning Platform" />
+    <meta name="twitter:description" content="Specialized courses in IT, Fashion Design, Leather Crafting, and STEM subjects. Quality education with expert instructors." />
+    <meta name="twitter:image" content="%PUBLIC_URL%/social-share-image.png" />
+    
+    <!-- Web App Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    
+    <!-- Preconnect to external domains if needed -->
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Fallback fonts */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+      /* Will be applied when fonts load */
+      .fonts-loaded body {
+        font-family: 'Open Sans', sans-serif;
+      }
+      .fonts-loaded h1, 
+      .fonts-loaded h2, 
+      .fonts-loaded h3, 
+      .fonts-loaded h4, 
+      .fonts-loaded h5, 
+      .fonts-loaded h6 {
+        font-family: 'Poppins', sans-serif;
+      }
+    </style>
+    
+    <script>
+      // Add fonts-loaded class when fonts are ready
+      document.fonts.ready.then(function() {
+        document.documentElement.classList.add('fonts-loaded');
+      });
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>You need to enable JavaScript to run this application. Edenites Academy requires JavaScript for full functionality.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

@@ -12,7 +12,7 @@
 /build
 
 # misc
-.DS_Store
+.env              # Global .env file (should never be committed)
 .env.local
 .env.development.local
 .env.test.local
@@ -21,3 +21,13 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+
+.vscode/          # IDE settings
+.idea/            # JetBrains IDE files
+*.log             # All log files
+dist/             # Alternative build directory
+.cache/           # Build tool cache
+.temp/            # Temporary files
+.sass-cache/      # SASS cache
