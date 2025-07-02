@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import Wave from '../Wave/Wave';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import Wave from '../components/Wave/Wave';
 
-// Main container with proper wave integration
 const FAQSection = styled.section`
   position: relative;
-  padding: 1rem 0 1rem;
+  padding: 4rem 0;
   background-color: #f9f9ff;
-  overflow: hidden;
+  min-height: 100vh;
 `;
 
-// Content container with proper spacing
 const FAQContent = styled.div`
   max-width: 800px;
   margin: 0 auto;
@@ -24,7 +24,6 @@ const FAQTitle = styled.h1`
   color: #2d3748;
   margin-bottom: 2rem;
   font-size: 2.5rem;
-  position: relative;
 `;
 
 const FAQItem = styled.div`
@@ -81,12 +80,27 @@ const Icon = styled.span`
   color: #4a5568;
 `;
 
-const FAQ = () => {
-  const [activeIndex, setActiveIndex] = useState(null);
+// Skeleton Components
+const SkeletonItem = styled.div`
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+`;
 
-  const toggleFAQ = (index) => {
-    setActiveIndex(activeIndex === index ? null : index);
-  };
+const SkeletonHeader = styled.div`
+  padding: 1.5rem;
+  background: #f8f9fa;
+`;
+
+const SkeletonContent = styled.div`
+  padding: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+`;
+
+const FAQPage = () => {
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const faqs = [
     {
@@ -135,23 +149,51 @@ const FAQ = () => {
     }
   ];
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleFAQ = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
   return (
     <FAQSection id="faq">
       <Wave position="top" color="#2b5876" opacity="0.1" flip={false} />
       
       <FAQContent>
         <FAQTitle>Frequently Asked Questions</FAQTitle>
-        {faqs.map((faq, index) => (
-          <FAQItem key={index}>
-            <FAQQuestion onClick={() => toggleFAQ(index)}>
-              {faq.question}
-              <Icon isOpen={activeIndex === index}>▼</Icon>
-            </FAQQuestion>
-            <FAQAnswer isOpen={activeIndex === index}>
-              {faq.answer}
-            </FAQAnswer>
-          </FAQItem>
-        ))}
+        
+        {loading ? (
+          // Skeleton loading state
+          [...Array(5)].map((_, index) => (
+            <SkeletonItem key={index}>
+              <SkeletonHeader>
+                <Skeleton height={24} />
+              </SkeletonHeader>
+              <SkeletonContent>
+                <Skeleton count={3} />
+              </SkeletonContent>
+            </SkeletonItem>
+          ))
+        ) : (
+          // Actual FAQ content
+          faqs.map((faq, index) => (
+            <FAQItem key={index}>
+              <FAQQuestion onClick={() => toggleFAQ(index)}>
+                {faq.question}
+                <Icon isOpen={activeIndex === index}>▼</Icon>
+              </FAQQuestion>
+              <FAQAnswer isOpen={activeIndex === index}>
+                {faq.answer}
+              </FAQAnswer>
+            </FAQItem>
+          ))
+        )}
       </FAQContent>
       
       <Wave position="bottom" color="#2b5876" opacity="0.1" flip={true} />
@@ -159,6 +201,4 @@ const FAQ = () => {
   );
 };
 
-export default FAQ;
-
-
+export default FAQPage;

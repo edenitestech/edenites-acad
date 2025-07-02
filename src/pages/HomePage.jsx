@@ -2,7 +2,9 @@ import { Hero } from '../components/Hero/Hero';
 import { CourseCard } from '../components/CourseCard/CourseCard';
 import OurProducts from '../components/Products/OurProducts';
 import styled from 'styled-components';
-import FAQs from '../components/FAQS/FAQs';
+import FAQPreview from '../components/FAQS/FAQPreview';
+import BlogPreview from '../components/Blog/BlogPreview';
+import ContactPreview from '../components/Contact/ContactPreview';
 import Testimonials from '../components/Testimonials/Testimonials';
 
 const courses = [
@@ -54,8 +56,10 @@ const HomePage = () => (
         ))}
       </CoursesGrid>
     </CourseSection>
-    <FAQs />
-    <Testimonials/>
+    <BlogPreview />
+    <ContactPreview />
+    <Testimonials />
+    <FAQPreview />
   </>
 );
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://e-learning-be-3n5m.onrender.com/api',
+  baseURL: process.env.REACT_APP_API_BASE_URL || "/api",
   headers: {
     'Content-Type': 'application/json',
   },

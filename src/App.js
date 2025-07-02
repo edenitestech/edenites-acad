@@ -9,6 +9,9 @@ import Layout from './components/Layout/Layout';
 
 // Pages
 import HomePage from './pages/HomePage';
+import FAQPage from './pages/FAQPage';
+import BlogPage from './pages/BlogPage';
+import ContactPage from './pages/ContactPage';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import Dashboard from './pages/Dashboard';
@@ -47,6 +50,9 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/cbt-exams" element={<CBTExamsPage />} />

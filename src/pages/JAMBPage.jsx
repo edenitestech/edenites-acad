@@ -8,8 +8,25 @@ import 'react-loading-skeleton/dist/skeleton.css';
 const JAMBContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  margin-top: 4rem;
+  flex-direction: column;
   background: #f8fafc;
+
+  @media (min-width: 769px) {
+    flex-direction: row;
+    margin-top: 4rem;
+  }
+`;
+
+const MainContent = styled.div`
+  flex: 1;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+  }
 `;
 
 const Sidebar = styled.div`
@@ -18,6 +35,16 @@ const Sidebar = styled.div`
   color: white;
   padding: 1.5rem 1rem;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  // height: 100vh;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    position: static;
+    height: auto;
+  }
 `;
 
 
@@ -54,18 +81,19 @@ const SidebarLink = styled(Link)`
   }
 `;
 
-const MainContent = styled.div`
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
 const Header = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
 `;
 
 const Title = styled.h1`
@@ -98,9 +126,19 @@ const UserName = styled.span`
 
 const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
 `;
 
 const Card = styled.div`
@@ -145,15 +183,39 @@ const CardButton = styled.button`
 const ExamSection = styled.div`
   background: white;
   border-radius: 10px;
-  padding: 2rem;
+  padding: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
 `;
 
 const ExamHeader = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const ExamControls = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  @media (min-width: 768px) {
+    gap: 1rem;
+    flex-wrap: nowrap;
+  }
 `;
 
 const ExamTitle = styled.h2`
@@ -161,10 +223,6 @@ const ExamTitle = styled.h2`
   color: #2b5876;
 `;
 
-const ExamControls = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
 
 const ExamButton = styled.button`
   padding: 0.5rem 1rem;
@@ -182,20 +240,26 @@ const ExamButton = styled.button`
 `;
 
 const QuestionItem = styled.div`
-  margin-bottom: 1.5rem;
-  padding: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
   border-left: 3px solid ${props => props.answered ? '#4CAF50' : '#e5e7eb'};
   background: ${props => props.active ? '#f9f9f9' : 'transparent'};
+
+  @media (min-width: 768px) {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+  }
 `;
 
 const OptionButton = styled.button`
   display: block;
   width: 100%;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
+  padding: 0.5rem;
+  margin: 0.25rem 0;
   text-align: left;
   border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  font-size: 0.9rem;
+  border-radius: 8px;
   background: ${props => {
     if (props.showAnswer) {
       if (props.correct) return '#4CAF50';
@@ -212,6 +276,12 @@ const OptionButton = styled.button`
   
   &:hover {
     border-color: ${props => !props.showAnswer && '#4CAF50'};
+  }
+
+  @media (min-width: 768px) {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    font-size: 1rem;
   }
 `;
 
@@ -246,8 +316,9 @@ const SkeletonQuestion = styled.div`
 
 
 const JAMBPage = () => {
-  // Sidebar navigation state
+    // Sidebar navigation state
   const [activeTab, setActiveTab] = useState('practice-questions');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // All JAMB subjects - memoized to prevent re-renders
   const subjects = useMemo(() => [
@@ -2320,111 +2391,144 @@ const JAMBPage = () => {
     startNewExam('practice');
   }, [startNewExam]);
 
+
   return (
-    <JAMBContainer>
-      <Sidebar>
-        <SidebarTitle>JAMB Navigation</SidebarTitle>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarLink 
-              to='/exams/jamb' 
-              $active={activeTab === 'practice-questions'} 
-              onClick={() => {
-                setActiveTab('practice-questions');
-                startNewExam('practice');
-              }}
-            >
-              Practice Questions
-            </SidebarLink>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarLink 
-              to="#" 
-              active={activeTab === 'real-exam'} 
-              onClick={() => {
-                setActiveTab('real-exam');
-                startNewExam('real');
-              }}
-            >
-              Take CBT Exam
-            </SidebarLink>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarLink to="#" active={activeTab === 'register-course'}>
-              Register Course
-            </SidebarLink>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarLink to="#" active={activeTab === 'active-course'}>
-              Active Course
-            </SidebarLink>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarLink to="#" active={activeTab === 'chat-room'}>
-              Chat Room
-            </SidebarLink>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarLink to="#" active={activeTab === 'profile'}>
-              Profile
-            </SidebarLink>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </Sidebar>
+    <>
+    
+      <JAMBContainer>
+        <Sidebar $mobileMenuOpen={mobileMenuOpen}>
+          <SidebarTitle>JAMB Navigation</SidebarTitle>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarLink 
+                to='/exams/jamb' 
+                $active={activeTab === 'practice-questions'} 
+                onClick={() => {
+                  setActiveTab('practice-questions');
+                  startNewExam('practice');
+                }}
+              >
+                Practice Questions
+              </SidebarLink>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink 
+                to="#" 
+                active={activeTab === 'real-exam'} 
+                onClick={() => {
+                  setActiveTab('real-exam');
+                  startNewExam('real');
+                }}
+              >
+                Take CBT Exam
+              </SidebarLink>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink to="#" active={activeTab === 'register-course'}>
+                Register Course
+              </SidebarLink>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink to="#" active={activeTab === 'active-course'}>
+                Active Course
+              </SidebarLink>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink to="#" active={activeTab === 'chat-room'}>
+                Chat Room
+              </SidebarLink>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink to="#" active={activeTab === 'profile'}>
+                Profile
+              </SidebarLink>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </Sidebar>
 
-      <MainContent>
-        <Header>
-          <Title>
-            {loading ? (
-              <Skeleton width={300} height={40} />
-            ) : (
-              <>
-                {activeTab === 'practice-questions' && 'JAMB Practice Questions'}
-                {activeTab === 'real-exam' && 'JAMB CBT Exam'}
-                {activeTab === 'register-course' && 'Register Course'}
-                {activeTab === 'active-course' && 'Active Course'}
-                {activeTab === 'chat-room' && 'Chat Room'}
-                {activeTab === 'profile' && 'My Profile'}
-              </>
-            )}
-          </Title>
-          <UserProfile>
-            {loading ? (
-              <>
-                <Skeleton width={100} height={24} />
-                <Skeleton circle width={40} height={40} />
-              </>
-            ) : (
-              <>
-                <UserName>John Smith</UserName>
-                <UserAvatar>JS</UserAvatar>
-              </>
-            )}
-          </UserProfile>
-        </Header>
+        <MainContent>
+          <Header>
+            <Title>
+              {loading ? (
+                <Skeleton width={300} height={40} />
+              ) : (
+                <>
+                  {activeTab === 'practice-questions' && 'JAMB Practice Questions'}
+                  {activeTab === 'real-exam' && 'JAMB CBT Exam'}
+                  {activeTab === 'register-course' && 'Register Course'}
+                  {activeTab === 'active-course' && 'Active Course'}
+                  {activeTab === 'chat-room' && 'Chat Room'}
+                  {activeTab === 'profile' && 'My Profile'}
+                </>
+              )}
+            </Title>
+            <UserProfile>
+              {loading ? (
+                <>
+                  <Skeleton width={100} height={24} />
+                  <Skeleton circle width={40} height={40} />
+                </>
+              ) : (
+                <>
+                  <UserName>John Smith</UserName>
+                  <UserAvatar>JS</UserAvatar>
+                </>
+              )}
+            </UserProfile>
+          </Header>
 
-        {loading ? (
-          // Skeleton loading states
-          <div>
-            {activeTab === 'practice-questions' && (
-              <>
-                <CardGrid>
-                  {[...Array(4)].map((_, i) => (
-                    <SkeletonCard key={i}>
-                      <Skeleton height={24} width="80%" />
-                      <Skeleton height={16} width="60%" style={{ marginTop: '10px' }} />
-                      <Skeleton height={36} width="100%" style={{ marginTop: '15px' }} />
-                    </SkeletonCard>
-                  ))}
-                </CardGrid>
+          {loading ? (
+            // Skeleton loading states
+            <div>
+              {activeTab === 'practice-questions' && (
+                <>
+                  <CardGrid>
+                    {[...Array(4)].map((_, i) => (
+                      <SkeletonCard key={i}>
+                        <Skeleton height={24} width="80%" />
+                        <Skeleton height={16} width="60%" style={{ marginTop: '10px' }} />
+                        <Skeleton height={36} width="100%" style={{ marginTop: '15px' }} />
+                      </SkeletonCard>
+                    ))}
+                  </CardGrid>
 
+                  <ExamSection>
+                    <ExamHeader>
+                      <Skeleton width={250} height={30} />
+                      <Skeleton width={150} height={36} />
+                    </ExamHeader>
+                    
+                    {[...Array(3)].map((_, i) => (
+                      <SkeletonQuestion key={i}>
+                        <Skeleton width="90%" height={20} style={{ marginBottom: '15px' }} />
+                        {[...Array(8)].map((_, j) => (
+                          <Skeleton 
+                            key={j} 
+                            width="100%" 
+                            height={40} 
+                            style={{ marginBottom: '10px' }} 
+                          />
+                        ))}
+                      </SkeletonQuestion>
+                    ))}
+                    
+                    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                      <Skeleton width={150} height={40} />
+                    </div>
+                  </ExamSection>
+                </>
+              )}
+              
+              {activeTab === 'real-exam' && (
                 <ExamSection>
                   <ExamHeader>
                     <Skeleton width={250} height={30} />
                     <Skeleton width={150} height={36} />
                   </ExamHeader>
                   
-                  {[...Array(3)].map((_, i) => (
+                  <Skeleton width="70%" height={20} style={{ marginBottom: '20px' }} />
+                  
+                  {[...Array(10)].map((_, i) => (
                     <SkeletonQuestion key={i}>
                       <Skeleton width="90%" height={20} style={{ marginBottom: '15px' }} />
                       {[...Array(8)].map((_, j) => (
@@ -2442,86 +2546,101 @@ const JAMBPage = () => {
                     <Skeleton width={150} height={40} />
                   </div>
                 </ExamSection>
-              </>
-            )}
-            
-            {activeTab === 'real-exam' && (
-              <ExamSection>
-                <ExamHeader>
-                  <Skeleton width={250} height={30} />
-                  <Skeleton width={150} height={36} />
-                </ExamHeader>
-                
-                <Skeleton width="70%" height={20} style={{ marginBottom: '20px' }} />
-                
-                {[...Array(10)].map((_, i) => (
-                  <SkeletonQuestion key={i}>
-                    <Skeleton width="90%" height={20} style={{ marginBottom: '15px' }} />
-                    {[...Array(8)].map((_, j) => (
-                      <Skeleton 
-                        key={j} 
-                        width="100%" 
-                        height={40} 
-                        style={{ marginBottom: '10px' }} 
-                      />
+              )}
+              
+              {(activeTab !== 'practice-questions' && activeTab !== 'real-exam') && (
+                <ExamSection>
+                  <Skeleton height={40} width={300} style={{ marginBottom: '20px' }} />
+                  <Skeleton height={200} />
+                </ExamSection>
+              )}
+            </div>
+          ) : (
+            // Actual content when not loading
+            <>
+              {activeTab === 'practice-questions' && !examState.submitted && (
+                <>
+                  <CardGrid>
+                    {subjects.slice(0, 8).map((subject, index) => (
+                      <Card key={index}>
+                        <CardTitle>{subject.name}</CardTitle>
+                        <CardDescription>
+                          {subject.topics} topics · {subject.duration}
+                        </CardDescription>
+                        <CardButton onClick={() => {
+                          // Filter questions by subject
+                          const subjectQuestions = allPracticeQuestions.filter(
+                            q => q.subject === subject.name.split(' ')[0]
+                          );
+                          setExamState(prev => ({
+                            ...prev,
+                            questions: subjectQuestions.slice(0, 10),
+                            answers: {},
+                            submitted: false,
+                            score: 0,
+                            timeUsed: 0
+                          }));
+                        }}>
+                          Start Practice
+                        </CardButton>
+                      </Card>
                     ))}
-                  </SkeletonQuestion>
-                ))}
-                
-                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                  <Skeleton width={150} height={40} />
-                </div>
-              </ExamSection>
-            )}
-            
-            {(activeTab !== 'practice-questions' && activeTab !== 'real-exam') && (
-              <ExamSection>
-                <Skeleton height={40} width={300} style={{ marginBottom: '20px' }} />
-                <Skeleton height={200} />
-              </ExamSection>
-            )}
-          </div>
-        ) : (
-          // Actual content when not loading
-          <>
-            {activeTab === 'practice-questions' && !examState.submitted && (
-              <>
-                <CardGrid>
-                  {subjects.slice(0, 8).map((subject, index) => (
-                    <Card key={index}>
-                      <CardTitle>{subject.name}</CardTitle>
-                      <CardDescription>
-                        {subject.topics} topics · {subject.duration}
-                      </CardDescription>
-                      <CardButton onClick={() => {
-                        // Filter questions by subject
-                        const subjectQuestions = allPracticeQuestions.filter(
-                          q => q.subject === subject.name.split(' ')[0]
-                        );
-                        setExamState(prev => ({
-                          ...prev,
-                          questions: subjectQuestions.slice(0, 10),
-                          answers: {},
-                          submitted: false,
-                          score: 0,
-                          timeUsed: 0
-                        }));
-                      }}>
-                        Start Practice
-                      </CardButton>
-                    </Card>
-                  ))}
-                </CardGrid>
+                  </CardGrid>
 
+                  <ExamSection>
+                    <ExamHeader>
+                      <ExamTitle>Mixed Practice Questions</ExamTitle>
+                      <ExamControls>
+                        <ExamButton onClick={() => startNewExam('practice')}>
+                          New Practice
+                        </ExamButton>
+                      </ExamControls>
+                    </ExamHeader>
+
+                    {examState.questions.map((q, qIndex) => (
+                      <QuestionItem key={qIndex} answered={examState.answers[qIndex] !== undefined}>
+                        <h3>{qIndex + 1}. {q.question}</h3>
+                        <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+                          Subject: {q.subject}
+                        </p>
+
+                        {q.options.map((option, oIndex) => (
+                          <OptionButton
+                            key={oIndex}
+                            onClick={() => handleSelectAnswer(qIndex, oIndex)}
+                            selected={examState.answers[qIndex] === oIndex}
+                            showAnswer={false}
+                          >
+                            {String.fromCharCode(65 + oIndex)}. {option}
+                          </OptionButton>
+                        ))}
+                      </QuestionItem>
+                    ))}
+
+                    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                      <ExamButton primary onClick={handleSubmitExam}>
+                        Submit Answers
+                      </ExamButton>
+                    </div>
+                  </ExamSection>
+                </>
+              )}
+
+              {activeTab === 'real-exam' && !examState.submitted && (
                 <ExamSection>
                   <ExamHeader>
-                    <ExamTitle>Mixed Practice Questions</ExamTitle>
+                    <ExamTitle>JAMB CBT Exam Simulation</ExamTitle>
                     <ExamControls>
-                      <ExamButton onClick={() => startNewExam('practice')}>
-                        New Practice
+                      <ExamButton onClick={() => startNewExam('real')}>
+                        Restart Exam
                       </ExamButton>
                     </ExamControls>
                   </ExamHeader>
+
+                  <p style={{ marginBottom: '1.5rem' }}>
+                    This is a simulation of the real JAMB CBT exam with 60 questions. 
+                    You have {examState.examType === 'real' ? '120' : '30'} minutes to complete it.
+                  </p>
 
                   {examState.questions.map((q, qIndex) => (
                     <QuestionItem key={qIndex} answered={examState.answers[qIndex] !== undefined}>
@@ -2545,141 +2664,342 @@ const JAMBPage = () => {
 
                   <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                     <ExamButton primary onClick={handleSubmitExam}>
-                      Submit Answers
+                      Submit Exam
                     </ExamButton>
                   </div>
                 </ExamSection>
-              </>
-            )}
+              )}
 
-            {activeTab === 'real-exam' && !examState.submitted && (
-              <ExamSection>
-                <ExamHeader>
-                  <ExamTitle>JAMB CBT Exam Simulation</ExamTitle>
-                  <ExamControls>
-                    <ExamButton onClick={() => startNewExam('real')}>
-                      Restart Exam
-                    </ExamButton>
-                  </ExamControls>
-                </ExamHeader>
+              {(activeTab === 'practice-questions' || activeTab === 'real-exam') && examState.submitted && (
+                <ExamSection>
+                  <ResultsContainer>
+                    <ScoreText>
+                      Your Score: {examState.score} / {examState.questions.length} (
+                      {Math.round((examState.score / examState.questions.length) * 100)}%)
+                    </ScoreText>
+                    <TimeText>
+                      Time Taken: {Math.floor(examState.timeUsed / 60)}m {examState.timeUsed % 60}s
+                    </TimeText>
+                    
+                    {examState.questions.map((q, qIndex) => (
+                      <QuestionItem key={qIndex} answered={examState.answers[qIndex] !== undefined}>
+                        <h3>{qIndex + 1}. {q.question}</h3>
+                        <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+                          Subject: {q.subject}
+                        </p>
 
-                <p style={{ marginBottom: '1.5rem' }}>
-                  This is a simulation of the real JAMB CBT exam with 60 questions. 
-                  You have {examState.examType === 'real' ? '120' : '30'} minutes to complete it.
-                </p>
-
-                {examState.questions.map((q, qIndex) => (
-                  <QuestionItem key={qIndex} answered={examState.answers[qIndex] !== undefined}>
-                    <h3>{qIndex + 1}. {q.question}</h3>
-                    <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                      Subject: {q.subject}
-                    </p>
-
-                    {q.options.map((option, oIndex) => (
-                      <OptionButton
-                        key={oIndex}
-                        onClick={() => handleSelectAnswer(qIndex, oIndex)}
-                        selected={examState.answers[qIndex] === oIndex}
-                        showAnswer={false}
-                      >
-                        {String.fromCharCode(65 + oIndex)}. {option}
-                      </OptionButton>
+                        {q.options.map((option, oIndex) => (
+                          <OptionButton
+                            key={oIndex}
+                            selected={examState.answers[qIndex] === oIndex}
+                            correct={oIndex === q.correctAnswer}
+                            showAnswer={true}
+                            disabled
+                          >
+                            {String.fromCharCode(65 + oIndex)}. {option}
+                            {oIndex === q.correctAnswer && (
+                              <span style={{ marginLeft: '0.5rem' }}>✓ Correct</span>
+                            )}
+                            {examState.answers[qIndex] === oIndex && oIndex !== q.correctAnswer && (
+                              <span style={{ marginLeft: '0.5rem' }}>✗ Your Answer</span>
+                            )}
+                          </OptionButton>
+                        ))}
+                      </QuestionItem>
                     ))}
-                  </QuestionItem>
-                ))}
 
-                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                  <ExamButton primary onClick={handleSubmitExam}>
-                    Submit Exam
-                  </ExamButton>
-                </div>
-              </ExamSection>
-            )}
+                    <ExamButton 
+                      primary 
+                      onClick={() => startNewExam(examState.examType)}
+                      style={{ marginTop: '2rem' }}
+                    >
+                      Try Again
+                    </ExamButton>
+                  </ResultsContainer>
+                </ExamSection>
+              )}
 
-            {(activeTab === 'practice-questions' || activeTab === 'real-exam') && examState.submitted && (
-              <ExamSection>
-                <ResultsContainer>
-                  <ScoreText>
-                    Your Score: {examState.score} / {examState.questions.length} (
-                    {Math.round((examState.score / examState.questions.length) * 100)}%)
-                  </ScoreText>
-                  <TimeText>
-                    Time Taken: {Math.floor(examState.timeUsed / 60)}m {examState.timeUsed % 60}s
-                  </TimeText>
+              {activeTab === 'register-course' && (
+                <ExamSection>
+                  <h2>Course Registration</h2>
+                  <p>Select the courses you want to register for the current session.</p>
                   
-                  {examState.questions.map((q, qIndex) => (
-                    <QuestionItem key={qIndex} answered={examState.answers[qIndex] !== undefined}>
-                      <h3>{qIndex + 1}. {q.question}</h3>
-                      <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                        Subject: {q.subject}
-                      </p>
-
-                      {q.options.map((option, oIndex) => (
-                        <OptionButton
-                          key={oIndex}
-                          selected={examState.answers[qIndex] === oIndex}
-                          correct={oIndex === q.correctAnswer}
-                          showAnswer={true}
-                          disabled
-                        >
-                          {String.fromCharCode(65 + oIndex)}. {option}
-                          {oIndex === q.correctAnswer && (
-                            <span style={{ marginLeft: '0.5rem' }}>✓ Correct</span>
-                          )}
-                          {examState.answers[qIndex] === oIndex && oIndex !== q.correctAnswer && (
-                            <span style={{ marginLeft: '0.5rem' }}>✗ Your Answer</span>
-                          )}
-                        </OptionButton>
+                  <div style={{ marginTop: '2rem' }}>
+                    <h3>Available Courses</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                      {subjects.slice(0, 6).map((subject, index) => (
+                        <div key={index} style={{ background: 'white', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                          <h4>{subject.name}</h4>
+                          <p>{subject.topics} topics · {subject.duration}</p>
+                          <button style={{
+                            padding: '0.5rem 1rem',
+                            background: '#4CAF50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            marginTop: '0.5rem'
+                          }}>
+                            Register Course
+                          </button>
+                        </div>
                       ))}
-                    </QuestionItem>
-                  ))}
+                    </div>
+                  </div>
+                  
+                  <div style={{ marginTop: '2rem', background: 'white', padding: '1.5rem', borderRadius: '8px' }}>
+                    <h3>Selected Courses</h3>
+                    <p style={{ color: '#666', margin: '1rem 0' }}>No courses selected yet</p>
+                    <button style={{
+                      padding: '0.75rem 1.5rem',
+                      background: '#2b5876',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: '500'
+                    }}>
+                      Complete Registration
+                    </button>
+                  </div>
+                </ExamSection>
+              )}
 
-                  <ExamButton 
-                    primary 
-                    onClick={() => startNewExam(examState.examType)}
-                    style={{ marginTop: '2rem' }}
-                  >
-                    Try Again
-                  </ExamButton>
-                </ResultsContainer>
-              </ExamSection>
-            )}
+              {activeTab === 'active-course' && (
+                <ExamSection>
+                  <h2>My Active Courses</h2>
+                  <p>These are the courses you're currently enrolled in.</p>
+                  
+                  <div style={{ marginTop: '2rem' }}>
+                    {subjects.slice(0, 3).map((subject, index) => (
+                      <div key={index} style={{
+                        background: 'white',
+                        padding: '1.5rem',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        marginBottom: '1rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <div>
+                          <h3>{subject.name}</h3>
+                          <p style={{ color: '#666' }}>Progress: 25% · {subject.duration} remaining</p>
+                          <div style={{ width: '100%', height: '6px', background: '#eee', borderRadius: '3px', marginTop: '0.5rem' }}>
+                            <div style={{ width: '25%', height: '100%', background: '#4CAF50', borderRadius: '3px' }}></div>
+                          </div>
+                        </div>
+                        <button style={{
+                          padding: '0.5rem 1rem',
+                          background: '#2b5876',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}>
+                          Continue Learning
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div style={{ marginTop: '2rem', background: 'white', padding: '1.5rem', borderRadius: '8px' }}>
+                    <h3>Course Statistics</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                      <div style={{ background: '#f0f7ff', padding: '1rem', borderRadius: '8px' }}>
+                        <p style={{ color: '#666', margin: '0' }}>Active Courses</p>
+                        <h3 style={{ margin: '0.5rem 0 0' }}>3</h3>
+                      </div>
+                      <div style={{ background: '#f0f7ff', padding: '1rem', borderRadius: '8px' }}>
+                        <p style={{ color: '#666', margin: '0' }}>Completed Topics</p>
+                        <h3 style={{ margin: '0.5rem 0 0' }}>24</h3>
+                      </div>
+                      <div style={{ background: '#f0f7ff', padding: '1rem', borderRadius: '8px' }}>
+                        <p style={{ color: '#666', margin: '0' }}>Hours Spent</p>
+                        <h3 style={{ margin: '0.5rem 0 0' }}>15.5</h3>
+                      </div>
+                    </div>
+                  </div>
+                </ExamSection>
+              )}
 
-            {activeTab === 'register-course' && (
-              <ExamSection>
-                <h2>Course Registration</h2>
-                <p>This section will allow you to register for courses.</p>
-                {/* Add course registration form here */}
-              </ExamSection>
-            )}
+              {activeTab === 'chat-room' && (
+                <ExamSection>
+                  <h2>Study Group Chat</h2>
+                  <p>Connect with other students preparing for JAMB exams.</p>
+                  
+                  <div style={{ display: 'flex', marginTop: '2rem', height: '500px' }}>
+                    <div style={{ width: '250px', borderRight: '1px solid #eee', paddingRight: '1rem' }}>
+                      <h3>Study Groups</h3>
+                      <div style={{ marginTop: '1rem' }}>
+                        {['Science Students', 'Art Students', 'Commerce Students', '2024 JAMB Group'].map((group, index) => (
+                          <div key={index} style={{
+                            padding: '0.75rem',
+                            borderRadius: '6px',
+                            marginBottom: '0.5rem',
+                            background: index === 0 ? '#e2f5ea' : 'transparent',
+                            cursor: 'pointer'
+                          }}>
+                            {group} <span style={{ float: 'right', color: '#666' }}>12</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div style={{ flex: 1, paddingLeft: '1rem', display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ flex: 1, overflowY: 'auto' }}>
+                        <div style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>Today</div>
+                        
+                        {/* Sample messages */}
+                        <div style={{ display: 'flex', marginBottom: '1rem' }}>
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#48bb99', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '0.75rem' }}>AB</div>
+                          <div>
+                            <div style={{ fontWeight: '500' }}>Adebola B. <span style={{ color: '#666', fontSize: '0.8rem' }}>10:32 AM</span></div>
+                            <div style={{ background: '#f0f7ff', padding: '0.75rem', borderRadius: '0 8px 8px 8px', marginTop: '0.25rem' }}>
+                              Has anyone solved the 2023 JAMB physics questions?
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', marginBottom: '1rem', justifyContent: 'flex-end' }}>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontWeight: '500' }}>You <span style={{ color: '#666', fontSize: '0.8rem' }}>10:35 AM</span></div>
+                            <div style={{ background: '#2b5876', color: 'white', padding: '0.75rem', borderRadius: '8px 0 8px 8px', marginTop: '0.25rem' }}>
+                              I've done about half of them. Which ones are you stuck on?
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div style={{ marginTop: '1rem', display: 'flex' }}>
+                        <input 
+                          type="text" 
+                          placeholder="Type your message..." 
+                          style={{ flex: 1, padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px 0 0 6px' }} 
+                        />
+                        <button style={{
+                          padding: '0 1.5rem',
+                          background: '#4CAF50',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '0 6px 6px 0',
+                          cursor: 'pointer'
+                        }}>
+                          Send
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </ExamSection>
+              )}
 
-            {activeTab === 'active-course' && (
-              <ExamSection>
-                <h2>Active Courses</h2>
-                <p>View your currently enrolled courses.</p>
-                {/* Add active courses list here */}
-              </ExamSection>
-            )}
-
-            {activeTab === 'chat-room' && (
-              <ExamSection>
-                <h2>Chat Room</h2>
-                <p>Discuss with other students preparing for JAMB.</p>
-                {/* Add chat interface here */}
-              </ExamSection>
-            )}
-
-            {activeTab === 'profile' && (
-              <ExamSection>
-                <h2>My Profile</h2>
-                <p>View and edit your profile information.</p>
-                {/* Add profile form here */}
-              </ExamSection>
-            )}
-          </>
-        )}
-      </MainContent>
-    </JAMBContainer>
+              {activeTab === 'profile' && (
+                <ExamSection>
+                  <h2>My Profile</h2>
+                  
+                  <div style={{ display: 'flex', marginTop: '2rem' }}>
+                    <div style={{ width: '200px', marginRight: '2rem' }}>
+                      <div style={{ width: '150px', height: '150px', borderRadius: '50%', background: '#48bb99', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+                        JS
+                      </div>
+                      <button style={{
+                        width: '100%',
+                        padding: '0.5rem',
+                        background: 'transparent',
+                        border: '1px solid #2b5876',
+                        borderRadius: '4px',
+                        color: '#2b5876',
+                        cursor: 'pointer'
+                      }}>
+                        Change Photo
+                      </button>
+                    </div>
+                    
+                    <div style={{ flex: 1 }}>
+                      <h3>Personal Information</h3>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.25rem', color: '#666' }}>First Name</label>
+                          <input 
+                            type="text" 
+                            value="John" 
+                            style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }} 
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.25rem', color: '#666' }}>Last Name</label>
+                          <input 
+                            type="text" 
+                            value="Smith" 
+                            style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }} 
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.25rem', color: '#666' }}>Email</label>
+                          <input 
+                            type="email" 
+                            value="john.smith@example.com" 
+                            style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }} 
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.25rem', color: '#666' }}>Phone</label>
+                          <input 
+                            type="tel" 
+                            value="+234 812 345 6789" 
+                            style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }} 
+                          />
+                        </div>
+                      </div>
+                      
+                      <h3 style={{ marginTop: '2rem' }}>Account Settings</h3>
+                      <div style={{ marginTop: '1rem' }}>
+                        <button style={{
+                          padding: '0.75rem 1.5rem',
+                          background: '#2b5876',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          marginRight: '1rem'
+                        }}>
+                          Change Password
+                        </button>
+                        <button style={{
+                          padding: '0.75rem 1.5rem',
+                          background: '#f44336',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}>
+                          Delete Account
+                        </button>
+                      </div>
+                      
+                      <div style={{ marginTop: '2rem', textAlign: 'right' }}>
+                        <button style={{
+                          padding: '0.75rem 2rem',
+                          background: '#4CAF50',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '500'
+                        }}>
+                          Save Changes
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </ExamSection>
+              )}
+            </>
+          )}
+        </MainContent>
+      </JAMBContainer>
+    </>
   );
 };
 
