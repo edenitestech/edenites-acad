@@ -47,6 +47,24 @@ const Sidebar = styled.div`
   }
 `;
 
+// const Sidebar = styled.div`
+//   width: 250px;
+//   background: #2b5876;
+//   color: white;
+//   padding: 1.5rem 1rem;
+//   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+//   position: sticky;
+//   top: 0;
+//   overflow-y: auto;
+//   align-self: flex-start;  // Add this
+
+//   @media (max-width: 768px) {
+//     width: 100%;
+//     position: static;
+//     height: auto;
+//   }
+// `;
+
 
 const SidebarTitle = styled.h3`
   font-size: 1.2rem;
@@ -2424,22 +2442,30 @@ const JAMBPage = () => {
               </SidebarLink>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarLink to="#" active={activeTab === 'register-course'}>
+              <SidebarLink to="#" active={activeTab === 'register-course'}
+                onClick={() => setActiveTab('register-course')}
+              >
                 Register Course
               </SidebarLink>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarLink to="#" active={activeTab === 'active-course'}>
+              <SidebarLink to="#" active={activeTab === 'active-course'}
+                onClick={() => setActiveTab('active-course')}
+              >
                 Active Course
               </SidebarLink>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarLink to="#" active={activeTab === 'chat-room'}>
+              <SidebarLink to="#" active={activeTab === 'chat-room'}
+                onClick={() => setActiveTab('chat-room')}
+              >
                 Chat Room
               </SidebarLink>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarLink to="#" active={activeTab === 'profile'}>
+              <SidebarLink to="#" active={activeTab === 'profile'}
+                onClick={() => setActiveTab('profile')}
+              >
                 Profile
               </SidebarLink>
             </SidebarMenuItem>
