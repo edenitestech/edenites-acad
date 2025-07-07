@@ -67,7 +67,7 @@ export function AuthProvider({ children }) {
   const signup = async (userData) => {
     console.log(userData);
     try {
-      const { data } = await api.post(`${process.env.REACT_APP_API_BASE_URL}/auth/register/`, userData);
+      const { data } = await api.post(`${process.env.REACT_APP_API_BASE_URL}/auth/register`, userData);
       // Use localStorage by default for signups (or make configurable)
       localStorage.setItem('access', data.access);
       localStorage.setItem('refresh', data.refresh);
