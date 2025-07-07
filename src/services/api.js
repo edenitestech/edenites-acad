@@ -32,7 +32,7 @@ api.interceptors.response.use(
         if (!refresh) throw new Error('No refresh token');
         
         const { data } = await axios.post(
-          `${process.env.REACT_APP_API_BASE_URL}/token/refresh/`,
+          '/token/refresh/',
           { refresh }
         );
         
