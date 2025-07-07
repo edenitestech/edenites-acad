@@ -1,17 +1,14 @@
+// src/App.js
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Capital "N" in Navigate
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Preloader } from './components/UI/Preloader';
-
-// Layout
 import Layout from './components/Layout/Layout';
-
-// Pages
 import HomePage from './pages/HomePage';
 import FAQPage from './pages/FAQPage';
 import BlogPage from './pages/BlogPage';
+import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
@@ -19,7 +16,6 @@ import Dashboard from './pages/Dashboard';
 import CBTExamsPage from './pages/CBTExamsPage';
 import JAMBPage from './pages/JAMBPage';
 import WAECPage from './pages/WAECPage';
-
 import ITSoftwarePage from './pages/ITSoftwarePage';
 import FashionDesignPage from './pages/FashionDesignPage';
 import LeatherCraftingPage from './pages/LeatherCraftingPage';
@@ -34,10 +30,9 @@ function App() {
       once: true,
     });
 
-    // Simulate loading assets
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000); // 3 seconds for the preloader
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -50,10 +45,10 @@ function App() {
     <Router>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="*" element={<Navigate to="/" replace />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/blog" element={<BlogPage />} />
+           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -68,7 +63,9 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
-          <Route path="*" element={<navigate to="/" replace />} />
+          
+          {/* Single catch-all route at the end */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </Router>

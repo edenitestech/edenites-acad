@@ -1,21 +1,31 @@
 // src/utils/ProtectedRoute.jsx
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LoadingSpinner } from '../components/UI/LoadingSpinner';
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser, isLoading } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
+  const [showLoader, setShowLoader] = useState(true);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading && !currentUser) {
+      navigate('/login', { state: { from: location } });
+    }
+  }, [currentUser, isLoading, navigate, location]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLoader(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading || showLoader) {
     return <LoadingSpinner type="page" />;
   }
 
-  if (!currentUser) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  return children;
+  return currentUser ? children : null;
 };
 
 export default ProtectedRoute;

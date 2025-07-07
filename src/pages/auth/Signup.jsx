@@ -1,3 +1,4 @@
+// src/pages/auth/Signup.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,7 +14,8 @@ import {
   PasswordRequirements,
   RequirementItem
 } from '../../components/Auth/AuthStyles';
-import { FaCheck, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
+
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -23,6 +25,7 @@ const Signup = () => {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
 
@@ -43,6 +46,8 @@ const Signup = () => {
       return;
     }
     
+    setIsSubmitting(true);
+    
     const result = await signup({
       fullname: formData.fullname,
       email: formData.email,
@@ -50,6 +55,8 @@ const Signup = () => {
       confirmPassword: formData.confirmPassword,
       is_instructor: false
     });
+    
+    setIsSubmitting(false);
     
     if (result.success) {
       navigate('/dashboard');
@@ -123,8 +130,17 @@ const Signup = () => {
               </RequirementItem>
             ))}
           </PasswordRequirements>
-          
-          <AuthButton type="submit">Create Account</AuthButton>
+
+          <AuthButton type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <FaSpinner className="spinner" /> Processing...
+              </>
+            ) : (
+              'Create Account'
+            )}
+          </AuthButton>
+
         </AuthForm>
         
         <AuthFooter>

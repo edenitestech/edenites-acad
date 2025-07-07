@@ -1,3 +1,4 @@
+// src/styles/GlobalStyles.js
 import { createGlobalStyle } from 'styled-components';
 
 export const GlobalStyles = createGlobalStyle`
@@ -22,5 +23,15 @@ export const GlobalStyles = createGlobalStyle`
 
   button, input, textarea, select {
     font-family: inherit;
+  }
+
+  /* Add spinner animation */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spinner {
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
   }
 `;

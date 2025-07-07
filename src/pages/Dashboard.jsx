@@ -237,7 +237,9 @@ const Dashboard = () => {
           <Avatar>
             <FaUserCircle />
           </Avatar>
-          <UserName>{currentUser.fullname}</UserName>
+          <UserName>
+            {currentUser?.first_name} {currentUser?.last_name}
+          </UserName>
           <UserEmail>{currentUser.email}</UserEmail>
         </UserProfile>
         
