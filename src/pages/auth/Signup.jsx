@@ -59,7 +59,7 @@ const Signup = () => {
     setIsSubmitting(false);
     
     if (result.success) {
-      navigate('/dashboard');
+      navigate('/auth/dashboard/');
     } else {
       setError(result.message);
     }
