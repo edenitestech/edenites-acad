@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
         const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
         
         if (refresh) {
-          const { data } = await api.get('/auth/profile/');
+          const { data } = await api.get(`${process.env.REACT_APP_API_BASE_URL}/auth/profile`);
           setCurrentUser(data);
         }
       } catch (error) {
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   // Login Function
   const login = async (credentials) => {
     try {
-      const { data } = await api.post('/auth/login/',  {
+      const { data } = await api.post(`${process.env.REACT_APP_API_BASE_URL}auth/login`,  {
       email: credentials.email,
       password: credentials.password
     });
@@ -52,7 +52,7 @@ export function AuthProvider({ children }) {
       sessionStorage.setItem('refresh', data.refresh);
     }
       // Fetch user profile after login
-      const profile = await api.get('/auth/profile/');
+      const profile = await api.get(`${process.env.REACT_APP_API_BASE_URL}/auth/profile`);
       setCurrentUser(profile.data);
       return { success: true, user: profile.data };
     } catch (error) {
@@ -65,14 +65,15 @@ export function AuthProvider({ children }) {
 
 
   const signup = async (userData) => {
+    console.log(userData);
     try {
-      const { data } = await api.post('/auth/register/', userData);
+      const { data } = await api.post(`${process.env.REACT_APP_API_BASE_URL}/auth/register`, userData);
       // Use localStorage by default for signups (or make configurable)
       localStorage.setItem('access', data.access);
       localStorage.setItem('refresh', data.refresh);
       
       // Fetch user profile after signup
-      const profile = await api.get('/auth/profile/');
+      const profile = await api.get('/auth/profile')
       setCurrentUser(profile.data);
       
       return { success: true, user: profile.data };
