@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Preloader } from './components/UI/Preloader';
@@ -49,6 +50,7 @@ function App() {
     <Router>
       <Routes>
         <Route element={<Layout />}>
+          <Route path="*" element={<Navigate to="/" replace />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/blog" element={<BlogPage />} />

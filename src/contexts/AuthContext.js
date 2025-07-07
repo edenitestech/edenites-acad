@@ -8,21 +8,17 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  
-  // To Update the Token Verification
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        // Check both storage locations
-        const access = localStorage.getItem('access') || sessionStorage.getItem('access');
         const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
-        
         if (refresh) {
+          // Get user profile
           const { data } = await api.get('/auth/profile/');
           setCurrentUser(data);
         }
       } catch (error) {
-        // Clear both storage locations on error
+        console.error("Session verification failed:", error);
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
         sessionStorage.removeItem('access');
@@ -37,66 +33,62 @@ export function AuthProvider({ children }) {
   // Login Function
   const login = async (credentials) => {
     try {
-      const { data } = await api.post('auth/login/',  {
-      email: credentials.email,
-      password: credentials.password
-    });
+      const { data } = await api.post('/auth/login/', {
+        email: credentials.email,
+        password: credentials.password
+      });
 
-    // Use localStorage if "Remember Me" is checked
-    if (credentials.rememberMe) {
-      localStorage.setItem('access', data.access);
-      localStorage.setItem('refresh', data.refresh);
-    } else {
-      // Use sessionStorage for temporary session
-      sessionStorage.setItem('access', data.access);
-      sessionStorage.setItem('refresh', data.refresh);
-    }
-      // Fetch user profile after login
+      if (credentials.rememberMe) {
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+      } else {
+        sessionStorage.setItem('access', data.access);
+        sessionStorage.setItem('refresh', data.refresh);
+      }
+      
       const profile = await api.get('/auth/profile/');
       setCurrentUser(profile.data);
       return { success: true, user: profile.data };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
-      };
+      let message = 'Login failed';
+      if (error.response?.data?.detail) {
+        message = error.response.data.detail;
+      }
+      return { success: false, message };
     }
   };
 
-
+  // Signup function
   const signup = async (userData) => {
-    console.log(userData);
     try {
       const { data } = await api.post('/auth/register/', userData);
-      // Use localStorage by default for signups (or make configurable)
       localStorage.setItem('access', data.access);
       localStorage.setItem('refresh', data.refresh);
       
-      // Fetch user profile after signup
-      const profile = await api.get('/auth/profile/')
-      setCurrentUser(profile.data);
+      // Set user data immediately
+      const user = {
+        email: userData.email,
+        fullname: userData.fullname,
+        is_instructor: false
+      };
+      setCurrentUser(user);
       
-      return { success: true, user: profile.data };
+      return { success: true, user };
     } catch (error) {
-      // Improved error handling
       let message = 'Registration failed';
       if (error.response?.data) {
         if (error.response.data.detail) {
           message = error.response.data.detail;
         } else {
-          // Handle field-specific errors
           const firstErrorKey = Object.keys(error.response.data)[0];
           message = error.response.data[firstErrorKey][0];
         }
       }
-      return {
-        success: false,
-        message
-      };
+      return { success: false, message };
     }
   };
 
-
+  // Login functions
   const logout = () => {
     // Clear all storage locations
     localStorage.removeItem('access');
