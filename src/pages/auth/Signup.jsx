@@ -17,7 +17,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    fullname: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -33,6 +33,7 @@ const Signup = () => {
     { id: 4, text: 'Contains uppercase letter', validator: (p) => /[A-Z]/.test(p) },
   ];
 
+  // Handling the Submit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -42,7 +43,14 @@ const Signup = () => {
       return;
     }
     
-    const result = await signup(formData);
+    const result = await signup({
+      fullname: formData.fullname,
+      email: formData.email,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+      is_instructor: false
+    });
+    
     if (result.success) {
       navigate('/dashboard');
     } else {
@@ -69,10 +77,10 @@ const Signup = () => {
           {error && <AuthError>{error}</AuthError>}
           
           <AuthInput
-            name="name"
+            name="fullname"
             type="text"
             placeholder="Full Name"
-            value={formData.name}
+            value={formData.fullname}
             onChange={handleChange}
             required
           />

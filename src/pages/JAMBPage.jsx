@@ -2527,7 +2527,7 @@ const JAMBPage = () => {
                     {[...Array(3)].map((_, i) => (
                       <SkeletonQuestion key={i}>
                         <Skeleton width="90%" height={20} style={{ marginBottom: '15px' }} />
-                        {[...Array(8)].map((_, j) => (
+                        {[...Array(9)].map((_, j) => (
                           <Skeleton 
                             key={j} 
                             width="100%" 
@@ -2587,7 +2587,7 @@ const JAMBPage = () => {
               {activeTab === 'practice-questions' && !examState.submitted && (
                 <>
                   <CardGrid>
-                    {subjects.slice(0, 8).map((subject, index) => (
+                    {subjects.slice(0, 9).map((subject, index) => (
                       <Card key={index}>
                         <CardTitle>{subject.name}</CardTitle>
                         <CardDescription>

@@ -8,16 +8,25 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  
+  // To Update the Token Verification
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const { data } = await api.get('/auth/verify');
-          setCurrentUser(data.user);
+        // Check both storage locations
+        const access = localStorage.getItem('access') || sessionStorage.getItem('access');
+        const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
+        
+        if (refresh) {
+          const { data } = await api.get('/auth/profile/');
+          setCurrentUser(data);
         }
       } catch (error) {
-        localStorage.removeItem('token');
+        // Clear both storage locations on error
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        sessionStorage.removeItem('access');
+        sessionStorage.removeItem('refresh');
       } finally {
         setIsLoading(false);
       }
@@ -25,12 +34,27 @@ export function AuthProvider({ children }) {
     verifyAuth();
   }, []);
 
+  // Login Function
   const login = async (credentials) => {
     try {
-      const { data } = await api.post('/auth/login', credentials);
-      localStorage.setItem('token', data.token);
-      setCurrentUser(data.user);
-      return { success: true, user: data.user };
+      const { data } = await api.post('/auth/login/',  {
+      email: credentials.email,
+      password: credentials.password
+    });
+
+    // Use localStorage if "Remember Me" is checked
+    if (credentials.rememberMe) {
+      localStorage.setItem('access', data.access);
+      localStorage.setItem('refresh', data.refresh);
+    } else {
+      // Use sessionStorage for temporary session
+      sessionStorage.setItem('access', data.access);
+      sessionStorage.setItem('refresh', data.refresh);
+    }
+      // Fetch user profile after login
+      const profile = await api.get('/auth/profile/');
+      setCurrentUser(profile.data);
+      return { success: true, user: profile.data };
     } catch (error) {
       return { 
         success: false, 
@@ -39,22 +63,45 @@ export function AuthProvider({ children }) {
     }
   };
 
+
   const signup = async (userData) => {
     try {
-      const { data } = await api.post('/auth/register', userData);
-      localStorage.setItem('token', data.token);
-      setCurrentUser(data.user);
-      return { success: true, user: data.user };
+      const { data } = await api.post('/auth/register/', userData);
+      // Use localStorage by default for signups (or make configurable)
+      localStorage.setItem('access', data.access);
+      localStorage.setItem('refresh', data.refresh);
+      
+      // Fetch user profile after signup
+      const profile = await api.get('/auth/profile/');
+      setCurrentUser(profile.data);
+      
+      return { success: true, user: profile.data };
     } catch (error) {
+      // Improved error handling
+      let message = 'Registration failed';
+      if (error.response?.data) {
+        if (error.response.data.detail) {
+          message = error.response.data.detail;
+        } else {
+          // Handle field-specific errors
+          const firstErrorKey = Object.keys(error.response.data)[0];
+          message = error.response.data[firstErrorKey][0];
+        }
+      }
       return {
         success: false,
-        message: error.response?.data?.message || 'Registration failed'
+        message
       };
     }
   };
 
+
   const logout = () => {
-    localStorage.removeItem('token');
+    // Clear all storage locations
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    sessionStorage.removeItem('access');
+    sessionStorage.removeItem('refresh');
     setCurrentUser(null);
     return true;
   };

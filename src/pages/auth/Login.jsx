@@ -25,6 +25,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    // Send only required fields
     const result = await login({ email, password, rememberMe });
     if (result.success) {
       navigate('/dashboard');
