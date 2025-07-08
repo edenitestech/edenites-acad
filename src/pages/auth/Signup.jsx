@@ -49,13 +49,7 @@ const Signup = () => {
     
     setIsSubmitting(true);
     
-    const result = await signup({
-      fullname: formData.fullname,
-      email: formData.email,
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
-      is_instructor: false
-    });
+    const result = await signup(formData);
     
     setIsSubmitting(false);
     
@@ -151,7 +145,6 @@ const Signup = () => {
               'Create Account'
             )}
           </AuthButton>
-
         </AuthForm>
         
         <AuthFooter>
