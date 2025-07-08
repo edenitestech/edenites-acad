@@ -1,4 +1,3 @@
-// src/pages/auth/Signup.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,10 +11,11 @@ import {
   AuthFooter,
   AuthError,
   PasswordRequirements,
-  RequirementItem
+  RequirementItem,
+  PasswordInputGroup,
+  PasswordToggle
 } from '../../components/Auth/AuthStyles';
-import { FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
-
+import { FaCheck, FaTimes, FaSpinner, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +26,8 @@ const Signup = () => {
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
 
@@ -36,7 +38,6 @@ const Signup = () => {
     { id: 4, text: 'Contains uppercase letter', validator: (p) => /[A-Z]/.test(p) },
   ];
 
-  // Handling the Submit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -59,7 +60,7 @@ const Signup = () => {
     setIsSubmitting(false);
     
     if (result.success) {
-      navigate('/auth/dashboard/');
+      navigate('/dashboard');
     } else {
       setError(result.message);
     }
@@ -101,23 +102,33 @@ const Signup = () => {
             required
           />
           
-          <AuthInput
-            name="password"
-            type="password"
-            placeholder="Create Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <PasswordInputGroup>
+            <AuthInput
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Create Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </PasswordToggle>
+          </PasswordInputGroup>
           
-          <AuthInput
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+          <PasswordInputGroup>
+            <AuthInput
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+            <PasswordToggle onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </PasswordToggle>
+          </PasswordInputGroup>
           
           <PasswordRequirements>
             {passwordRequirements.map((req) => (
@@ -150,5 +161,4 @@ const Signup = () => {
     </AuthContainer>
   );
 };
-
 export default Signup;

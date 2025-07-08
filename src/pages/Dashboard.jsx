@@ -150,11 +150,11 @@ const Button = styled.button`
 `;
 
 const Dashboard = () => {
-  const { currentUser, isLoading, logout } = useAuth();
+  const { currentUser, isLoading: authLoading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('my-courses');
   const [courses, setCourses] = useState([]);
   const [availableCourses, setAvailableCourses] = useState([]);
-  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [loadingCourses, setLoadingCourses] = useState(true); 
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -208,7 +208,7 @@ const Dashboard = () => {
       } catch (error) {
         console.error("Failed to fetch courses:", error);
       } finally {
-        setLoadingCourses(false);
+         setLoadingCourses(false);
       }
     };
     
@@ -226,7 +226,7 @@ const Dashboard = () => {
     setAvailableCourses(availableCourses.filter(c => c.id !== course.id));
   };
 
-  if (isLoading || loadingCourses) {
+  if (authLoading || loadingCourses) {
     return <LoadingSpinner type="page" />;
   }
 
@@ -238,7 +238,7 @@ const Dashboard = () => {
             <FaUserCircle />
           </Avatar>
           <UserName>
-            {currentUser?.first_name} {currentUser?.last_name}
+            {currentUser?.firstName} {currentUser?.lastName}
           </UserName>
           <UserEmail>{currentUser.email}</UserEmail>
         </UserProfile>

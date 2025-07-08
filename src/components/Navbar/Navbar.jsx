@@ -362,7 +362,7 @@ const Navbar = () => {
             <UserMenu>
               <UserGreeting className="user-greeting">
                 <FaUserCircle size={20} />
-                <span>Hi, {currentUser.name}</span>
+                <span>Hi, {currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}</span>
               </UserGreeting>
               <NavBtnLink onClick={handleLogout}>
                 Logout

@@ -11,22 +11,30 @@ import {
   AuthFooter,
   AuthError,
   RememberMe,
-  ForgotPassword
+  ForgotPassword,
+  PasswordInputGroup,
+  PasswordToggle
 } from '../../components/Auth/AuthStyles';
+import { FaSpinner, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    // Send only required fields
+    setIsLoading(true);
+
     const result = await login({ email, password, rememberMe });
+    
+    setIsLoading(false);
     if (result.success) {
       navigate('/dashboard');
     } else {
@@ -53,13 +61,18 @@ const Login = () => {
             required
           />
           
-          <AuthInput
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <PasswordInputGroup>
+            <AuthInput
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </PasswordToggle>
+          </PasswordInputGroup>
           
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <RememberMe>
@@ -77,7 +90,13 @@ const Login = () => {
             </ForgotPassword>
           </div>
           
-          <AuthButton type="submit">Login</AuthButton>
+          <AuthButton type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <FaSpinner className="spinner" /> Logging in...
+              </>
+            ) : 'Login'}
+          </AuthButton>
         </AuthForm>
         
         <AuthFooter>
@@ -87,5 +106,4 @@ const Login = () => {
     </AuthContainer>
   );
 };
-
 export default Login;

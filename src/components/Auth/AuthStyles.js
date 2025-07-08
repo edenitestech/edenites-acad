@@ -75,6 +75,21 @@ export const AuthInput = styled.input`
   }
 `;
 
+export const PasswordInputGroup = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+export const PasswordToggle = styled.span`
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #4a5568;
+  font-size: 1rem;
+`;
+
 // Button styles
 export const AuthButton = styled.button`
   width: 60%;

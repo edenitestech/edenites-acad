@@ -61,7 +61,7 @@ function App() {
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/auth/dashboard/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
           
           {/* Single catch-all route at the end */}

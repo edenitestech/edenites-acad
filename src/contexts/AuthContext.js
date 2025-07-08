@@ -16,7 +16,9 @@ export function AuthProvider({ children }) {
         id: data.user.id,
         email: data.user.email,
         fullname: `${data.user.first_name} ${data.user.last_name}`,
-        is_instructor: data.user.is_instructor,
+        firstName: data.user.first_name,
+        lastName: data.user.last_name, 
+        is_instructor: data.user.is_instructor
         // Add other user properties you need
       };
     } catch (error) {
@@ -62,7 +64,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem('refresh', data.refresh);
       } else {
         sessionStorage.setItem('access', data.access);
-        sessionStorage.removeItem('refresh', data.refresh);
+        sessionStorage.setItem('refresh', data.refresh);
       }
 
       // Step 3: Fetch complete user data
@@ -85,15 +87,20 @@ export function AuthProvider({ children }) {
       // Step 1: Register the user
       const { data } = await api.post('/auth/register/', userData);
       
-      // Step 2: Store tokens
-      localStorage.setItem('access', data.access);
-      localStorage.setItem('refresh', data.refresh);
+      // Step 2: Store tokens based on Remember me choice
+      if (userData.rememberMe) {
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+      } else {
+        sessionStorage.setItem('access', data.access);
+        sessionStorage.setItem('refresh', data.refresh);
+      }
 
       // Step 3: Fetch complete user data
       const user = await fetchUserData();
       setCurrentUser(user);
-      
       return { success: true, user };
+      
     } catch (error) {
       let message = 'Registration failed. Please try again.';
       

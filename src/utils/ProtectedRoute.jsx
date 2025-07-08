@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
     return <LoadingSpinner type="page" />;
   }
 
+
   return currentUser ? children : null;
 };
-
 export default ProtectedRoute;
