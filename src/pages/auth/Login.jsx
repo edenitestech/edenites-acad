@@ -27,12 +27,17 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // Update the handleSubmit function:
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    const result = await login({ email, password, rememberMe });
+    const result = await login({ 
+      email, 
+      password, 
+      rememberMe // This will be undefined if not checked, which is fine
+    });
     
     setIsLoading(false);
     if (result.success) {

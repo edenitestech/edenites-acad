@@ -1,13 +1,13 @@
-// src/utils/ProtectedRoute.jsx
 
-/*
+
+// src/utils/ProtectedRoute.js
 import { useEffect, useState } from 'react';
+import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import {  } from 'react-router-dom';
 import { LoadingSpinner } from '../components/UI/LoadingSpinner';
 
-
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
   const { currentUser, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,25 +23,6 @@ const ProtectedRoute = ({ children }) => {
     const timer = setTimeout(() => setShowLoader(false), 1000);
     return () => clearTimeout(timer);
   }, []);
-
-  if (isLoading || showLoader) {
-    return 
-  }
-
-
-  return currentUser ? children : null;
-};
-export default ProtectedRoute;
-
-*/
-
-// src/utils/ProtectedRoute.js
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { LoadingSpinner } from '../components/UI/LoadingSpinner';
-
-const ProtectedRoute = () => {
-  const { currentUser, isLoading } = useAuth();
 
   if (isLoading) {
     return <LoadingSpinner type="page" />;

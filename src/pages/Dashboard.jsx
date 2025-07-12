@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import styled from 'styled-components';
 import { LoadingSpinner } from '../components/UI/LoadingSpinner';
-import api from '../services/api';
+import api from '../services/api';  // Using your existing api service
+import { ENROLLED_COURSES, AVAILABLE_COURSES } from '../services/endpoints';
 import { FaUserCircle, FaShoppingCart, FaTrash, FaPlus } from 'react-icons/fa';
 
 const DashboardContainer = styled.div`
@@ -148,6 +149,222 @@ const Button = styled.button`
     color: white;
   }
 `;
+
+const Dashboard = () => {
+  const { currentUser, isLoading: authLoading, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('my-courses');
+  const [courses, setCourses] = useState([]);
+  const [availableCourses, setAvailableCourses] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (!currentUser) return;
+      
+      try {
+        setLoadingCourses(true);
+        setError(null);
+
+        // Fetch enrolled courses
+        const enrolledResponse = await api.get(ENROLLED_COURSES);
+        setCourses(enrolledResponse.data.results || enrolledResponse.data);
+        
+        // Fetch available courses
+        const availableResponse = await api.get(AVAILABLE_COURSES);
+        setAvailableCourses(availableResponse.data.results || availableResponse.data);
+        
+      } catch (err) {
+        console.error('Failed to fetch courses:', err);
+        setError(err.response?.data?.message || 'Failed to load courses');
+        
+        // Your interceptor will handle 401 errors automatically
+        if (err.response?.status !== 401) {
+          // Only show non-authentication errors
+          setError(err.response?.data?.message || 'Failed to load courses');
+        }
+      } finally {
+        setLoadingCourses(false);
+      }
+    };
+    
+    fetchCourses();
+  }, [currentUser]);
+
+  const handleRemoveCourse = async (courseId) => {
+    try {
+      await api.delete(`/courses/${courseId}/unenroll/`);
+      setCourses(prev => prev.filter(course => course.id !== courseId));
+    } catch (err) {
+      console.error('Failed to remove course:', err);
+      setError(err.response?.data?.message || 'Failed to unenroll from course');
+    }
+  };
+
+  const handleEnrollCourse = async (courseId) => {
+    try {
+      await api.post(`/courses/${courseId}/enroll/`);
+      
+      // Refresh both course lists after enrollment
+      const [enrolledResponse, availableResponse] = await Promise.all([
+        api.get(ENROLLED_COURSES),
+        api.get(AVAILABLE_COURSES)
+      ]);
+      
+      setCourses(enrolledResponse.data.results || enrolledResponse.data);
+      setAvailableCourses(availableResponse.data.results || availableResponse.data);
+      
+    } catch (err) {
+      console.error('Failed to enroll:', err);
+      setError(err.response?.data?.message || 'Failed to enroll in course');
+    }
+  };
+
+  if (authLoading || loadingCourses) {
+    return <LoadingSpinner type="page" />;
+  }
+
+  return (
+    <DashboardContainer>
+      <Sidebar>
+        <UserProfile>
+          <Avatar>
+            <FaUserCircle />
+          </Avatar>
+          <UserName>
+            {currentUser?.firstName} {currentUser?.lastName}
+          </UserName>
+          <UserEmail>{currentUser.email}</UserEmail>
+        </UserProfile>
+        
+        <NavItem 
+          className={activeTab === 'my-courses' ? 'active' : ''}
+          onClick={() => setActiveTab('my-courses')}
+        >
+          <FaUserCircle /> My Courses
+        </NavItem>
+        <NavItem 
+          className={activeTab === 'browse' ? 'active' : ''}
+          onClick={() => setActiveTab('browse')}
+        >
+          <FaShoppingCart /> Browse Courses
+        </NavItem>
+        <NavItem onClick={logout}>
+          <FaUserCircle /> Logout
+        </NavItem>
+      </Sidebar>
+      
+      <MainContent>
+        {activeTab === 'my-courses' ? (
+          <Section>
+            <SectionHeader>
+              <h2>My Learning</h2>
+            </SectionHeader>
+            
+            {courses.length > 0 ? (
+              <CourseGrid>
+                {courses.map(course => (
+                  <CourseCard key={course.id}>
+                    <CourseImage />
+                    <CourseContent>
+                      <CourseTitle>{course.title}</CourseTitle>
+                      <p>Instructor: {course.instructor}</p>
+                      <div>
+                        <p>Progress: {course.progress}%</p>
+                        <div style={{
+                          height: '6px', 
+                          background: '#e0e0e0', 
+                          borderRadius: '3px',
+                          margin: '10px 0'
+                        }}>
+                          <div style={{
+                            width: `${course.progress}%`,
+                            height: '100%',
+                            background: '#48bb99',
+                            borderRadius: '3px'
+                          }}></div>
+                        </div>
+                      </div>
+                      <CourseMeta>
+                        <Button 
+                          className="primary"
+                          onClick={() => console.log('Continue learning')}
+                        >
+                          Continue
+                        </Button>
+                        <Button 
+                          className="danger"
+                          onClick={() => handleRemoveCourse(course.id)}
+                        >
+                          <FaTrash /> Remove
+                        </Button>
+                      </CourseMeta>
+                    </CourseContent>
+                  </CourseCard>
+                ))}
+              </CourseGrid>
+            ) : (
+              <p>You haven't enrolled in any courses yet.</p>
+            )}
+          </Section>
+        ) : (
+          <Section>
+            <SectionHeader>
+              <h2>Available Courses</h2>
+            </SectionHeader>
+            
+            {availableCourses.length > 0 ? (
+              <CourseGrid>
+                {availableCourses.map(course => (
+                  <CourseCard key={course.id}>
+                    <CourseImage />
+                    <CourseContent>
+                      <CourseTitle>{course.title}</CourseTitle>
+                      <p>Instructor: {course.instructor}</p>
+                      <p>Price: ${course.price}</p>
+                      <CourseMeta>
+                        <Button 
+                          className="primary"
+                          onClick={() => handleEnrollCourse(course)}
+                        >
+                          <FaPlus /> Enroll Now
+                        </Button>
+                      </CourseMeta>
+                    </CourseContent>
+                  </CourseCard>
+                ))}
+              </CourseGrid>
+            ) : (
+              <p>No available courses at the moment.</p>
+            )}
+          </Section>
+        )}
+        
+        <Section>
+          <SectionHeader>
+            <h2>Account Settings</h2>
+          </SectionHeader>
+          <div>
+            <Button onClick={() => console.log('Edit profile')}>
+              Edit Profile
+            </Button>
+            <Button onClick={() => console.log('Change password')}>
+              Change Password
+            </Button>
+            <Button className="danger" onClick={logout}>
+              Logout
+            </Button>
+          </div>
+        </Section>
+      </MainContent>
+    </DashboardContainer>
+  );
+};
+
+export default Dashboard;
+
+
+/*
 
 const Dashboard = () => {
   const { currentUser, isLoading: authLoading, logout } = useAuth();
@@ -368,3 +585,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+*/
