@@ -58,11 +58,10 @@ function App() {
           <Route path="/leather-crafting" element={<LeatherCraftingPage />} />
           <Route path="/fashion-design" element={<FashionDesignPage />} />
           <Route path="/it-software" element={<ITSoftwarePage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          
+                    
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
-            
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
           
           {/* Single catch-all route at the end */}
