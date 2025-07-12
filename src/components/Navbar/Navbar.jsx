@@ -169,7 +169,7 @@ const AuthButtons = styled.div`
 
 const NavBtnLink = styled.button`
   border-radius: 50px;
-  background: linear-gradient(125deg,rgba(76, 175, 79, 0.84), cornsilk, rgba(43, 88, 118, 0.75));
+  background: #0bec5a;
   white-space: nowrap;
   padding: 10px 22px;
   color: #1f2220;

@@ -45,10 +45,11 @@ function App() {
     <Router>
       <Routes>
         <Route element={<Layout />}>
+          {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/blog" element={<BlogPage />} />
-           <Route path="/about" element={<AboutPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -58,17 +59,18 @@ function App() {
           <Route path="/leather-crafting" element={<LeatherCraftingPage />} />
           <Route path="/fashion-design" element={<FashionDesignPage />} />
           <Route path="/it-software" element={<ITSoftwarePage />} />
-                    
-          {/* Protected routes */}
+
+          {/* ✅ Protected Routes with children inside */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
-          
-          {/* Single catch-all route at the end */}
+
+          {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </Router>
+
   );
 }
 
