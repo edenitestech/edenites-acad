@@ -1,5 +1,4 @@
 
-
 // src/utils/ProtectedRoute.js
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom';

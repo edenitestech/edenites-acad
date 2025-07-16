@@ -1,20 +1,27 @@
-export const theme = {
+import { extendTheme } from '@chakra-ui/react';
+
+const theme = extendTheme({
+  config: {
+    initialColorMode: 'light',
+    useSystemColorMode: false,
+  },
   fonts: {
-    primary: '"Poppins", sans-serif',
-    secondary: '"Open Sans", sans-serif',
+    heading: 'Poppins, sans-serif',
+    body: 'Poppins, sans-serif',
   },
-  fontWeights: {
-    regular: 400,
-    medium: 500,
-    semiBold: 600,
-    bold: 700,
-  },
-  colors: {
+  colors: { // Add this colors section
     primary: '#2b5876',
-    secondary: '#4CAF50',
+    secondary: '#4e4376',
     white: '#ffffff',
-    black: '#000000',
-    // Add other colors as needed
   },
-  // Add other theme properties like breakpoints, spacing, etc.
-};
+  fontWeights: { // Add font weights
+    normal: 400,
+    medium: 500,
+    bold: 700,
+    semiBold: 600
+  }
+});
+
+export default theme;
+
+

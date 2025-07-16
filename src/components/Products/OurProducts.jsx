@@ -144,6 +144,9 @@ const ProductIcon = styled.div`
   font-size: 3rem;
   margin-bottom: 1.5rem;
   color: #4CAF50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ProductTitle = styled.h3`

@@ -1,5 +1,5 @@
-// src/components/CourseCard/CourseCard.jsx
 import { FaStar, FaUserAlt, FaPlayCircle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
 // Styled components
@@ -133,7 +133,7 @@ export const CourseOriginalPrice = styled.span`
   color: #718096;
 `;
 
-export const CourseButton = styled.button`
+export const CourseButton = styled(Link)`
   background: linear-gradient(to right, #4CAF50 0%, #2b5876 100%);
   color: white;
   border: none;
@@ -141,11 +141,14 @@ export const CourseButton = styled.button`
   border-radius: 50px;
   font-weight: 600;
   transition: all 0.3s ease;
+  text-decoration: none;
+  font-size: 0.9rem;
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(43, 88, 118, 0.3);
     cursor: pointer;
+    color: white;
   }
 `;
 
@@ -167,6 +170,27 @@ export const CourseShimmer = styled.div`
   ${CourseCardContainer}:hover & {
     opacity: 1;
   }
+`;
+
+// Additional styled components for course sections
+export const CourseSection = styled.section`
+  padding: 4rem 2rem;
+  background: #f9f9ff;
+`;
+
+export const SectionTitle = styled.h2`
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: #2d3748;
+`;
+
+export const CoursesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
 // CourseCard component
@@ -199,11 +223,17 @@ export const CourseCard = ({ course }) => {
         </CourseMeta>
         
         <CourseFooter>
-          <CoursePrice>${course.price}</CoursePrice>
-          {course.originalPrice && (
-            <CourseOriginalPrice>${course.originalPrice}</CourseOriginalPrice>
-          )}
-          <CourseButton>Enroll Now</CourseButton>
+          <div>
+            {course.originalPrice ? (
+              <>
+                <CourseOriginalPrice>${course.originalPrice}</CourseOriginalPrice>
+                <CoursePrice>${course.price}</CoursePrice>
+              </>
+            ) : (
+              <CoursePrice>${course.price}</CoursePrice>
+            )}
+          </div>
+          <CourseButton to={`/courses/${course.id}`}>Enroll Now</CourseButton>
         </CourseFooter>
       </CourseContent>
       
@@ -211,24 +241,3 @@ export const CourseCard = ({ course }) => {
     </CourseCardContainer>
   );
 };
-
-// Additional styled components for course sections
-export const CourseSection = styled.section`
-  padding: 4rem 2rem;
-  background: #f9f9ff;
-`;
-
-export const SectionTitle = styled.h2`
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
-  color: #2d3748;
-`;
-
-export const CoursesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-`;

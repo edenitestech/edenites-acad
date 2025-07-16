@@ -23,17 +23,6 @@ const TestimonialsContainer = styled.section`
   }
 `;
 
-// const TestimonialsContainer = styled.section`
-//   padding: 2rem 0;
-//   position: relative;
-//   background: ${({ theme }) => theme.colors.white};
-
-
-//   /* Fallback for mobile devices */
-//   @media (max-width: 950px) {
-//     background-attachment: scroll;
-//   }
-// `;
 
 const Container = styled.div`
   max-width: 1200px;

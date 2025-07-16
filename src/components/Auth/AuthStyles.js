@@ -1,79 +1,105 @@
 import styled from 'styled-components';
 
-// Main container styles
 export const AuthContainer = styled.div`
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #48bb99 0%, #03314f 100%);
+  background-color: #f0f2f5;
   padding: 1rem;
+`;
+
+export const AuthWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 80vh;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  background: white;
+`;
+
+export const AuthPromo = styled.div`
+  flex: 1;
+  background: linear-gradient(125deg, #03314f 74%, #0c9e46 26%);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 // Form card styles
 export const AuthCard = styled.div`
-  width: 100%;
-  max-width: 480px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  flex: 1;
+  max-width: 600px;
+  padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
-  font-family: ${({ theme }) => theme.fonts.secondary};
+  justify-content: center;
 `;
-
 
 // Header section
 export const AuthHeader = styled.div`
-  background: #2b5876;
-  color: white;
-  padding: 1rem;
   text-align: center;
-  font-family: ${({ theme }) => theme.fonts.primary};
+  margin-bottom: 1rem;
   
   h2 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: ${({ theme }) => theme.fontWeights.semiBold};
+    color: #2d3748;
+    font-size: 2.3rem;
+    margin-bottom: 0.5rem;
   }
   
   p {
-    margin: 0.5rem 0 0;
-    opacity: 0.9;
-    font-size: 0.95rem;
+    color: #718096;
   }
 `;
 
 // Form styles
 export const AuthForm = styled.form`
-  padding: 1rem;
-  padding-right: 3rem;
   display: flex;
   flex-direction: column;
-  gap: .3rem;
+  gap: .5rem;
 `;
 
 // Input styles
 export const AuthInput = styled.input`
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #e0e4e8;
-  border-radius: 25px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  margin-bottom: 2px;
   
   &:focus {
     outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    border-color: #48bb78;
+    box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
   }
   
   &::placeholder {
     color: #a0aec0;
   }
 `;
+
+// NameFields for signup
+export const NameFields = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 
 export const PasswordInputGroup = styled.div`
   position: relative;
