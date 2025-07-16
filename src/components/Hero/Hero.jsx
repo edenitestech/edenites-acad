@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, Flex, Heading, Text, Input, Button, 
   IconButton, Image, useBreakpointValue, 
-  useDisclosure, Menu, MenuButton, MenuList, MenuItem,
-  InputGroup, InputRightElement
+  useDisclosure, InputGroup, InputRightElement,
+  Skeleton, Fade
 } from '@chakra-ui/react';
 import { FaSearch, FaArrowRight } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,6 +24,7 @@ const Hero = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const isMobile = useBreakpointValue({ base: true, md: false });
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -65,12 +66,17 @@ const Hero = () => {
     setSearchQuery(query);
     
     if (query.length > 2) {
-      const results = coursesData.filter(course => 
-        course.title.toLowerCase().includes(query.toLowerCase()) ||
-        course.category.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(results);
-      onOpen();
+      setIsLoading(true);
+      // Simulate API call delay
+      setTimeout(() => {
+        const results = coursesData.filter(course => 
+          course.title.toLowerCase().includes(query.toLowerCase()) ||
+          course.category.toLowerCase().includes(query.toLowerCase())
+        );
+        setSearchResults(results);
+        onOpen();
+        setIsLoading(false);
+      }, 300);
     } else {
       setSearchResults([]);
       onClose();
@@ -97,11 +103,12 @@ const Hero = () => {
       direction={{ base: "column", md: "row" }}
       align="center"
       justify="space-between"
-      minH={{ base: "auto", md: "80vh" }}
+      minH={{ base: "auto", md: "85vh" }}
       bg="white"
       color="gray.800"
       px={{ base: 4, md: 8, lg: 16 }}
-      py={16}
+      pt={{ base: "24", md: "28" }} // Increased top padding
+      pb={{ base: 12, md: 16 }} // Adjusted bottom padding
       position="relative"
     >
       {/* Content Section */}
@@ -114,16 +121,16 @@ const Hero = () => {
       >
         <Heading
           as="h1"
-          size={{ base: "2xl", md: "3xl", lg: "4xl" }}
+          size={{ base: "xl", md: "2xl", lg: "3xl" }} // Reduced sizes
           fontWeight="extrabold"
-          lineHeight="1.2"
-          mb={6}
+          lineHeight={{ base: "1.3", md: "1.2" }}
+          mb={{ base: 4, md: 6 }}
         >
           Master Practical Skills <Box as="span" color="blue.600">For Real-World Success</Box>
         </Heading>
         
         <Text
-          fontSize={{ base: "lg", md: "xl" }}
+          fontSize={{ base: "md", md: "lg" }} // Reduced sizes
           mb={8}
           maxW="600px"
           color="gray.600"
@@ -137,7 +144,6 @@ const Hero = () => {
           mb={8} 
           w="100%" 
           maxW="500px"
-          ref={searchContainerRef}
           flexDirection="column"
         >
           <InputGroup>
@@ -171,8 +177,8 @@ const Hero = () => {
             </InputRightElement>
           </InputGroup>
           
-          {/* Search suggestions dropdown - Fixed positioning */}
-          {searchResults.length > 0 && isOpen && (
+          {/* Search suggestions dropdown */}
+          {isOpen && (
             <Box
               position="absolute"
               top="100%"
@@ -188,28 +194,43 @@ const Hero = () => {
               maxHeight="300px"
               overflowY="auto"
             >
-              {searchResults.map((course) => (
-                <Box
-                  key={course.id} 
-                  onClick={() => handleSelectSearchItem(course)}
-                  px={4}
-                  py={3}
-                  borderBottom="1px solid"
-                  borderColor="gray.100"
-                  cursor="pointer"
-                  _hover={{ bg: "gray.50" }}
-                >
-                  <Text fontWeight="bold">{course.title}</Text>
-                  <Text fontSize="sm" color="gray.500">{course.category}</Text>
+              {isLoading ? (
+                <Box p={4}>
+                  <Skeleton height="20px" mb={2} />
+                  <Skeleton height="15px" width="80%" />
                 </Box>
-              ))}
+              ) : searchResults.length > 0 ? (
+                searchResults.map((course) => (
+                  <Box
+                    key={course.id} 
+                    onClick={() => handleSelectSearchItem(course)}
+                    px={4}
+                    py={3}
+                    borderBottom="1px solid"
+                    borderColor="gray.100"
+                    cursor="pointer"
+                    _hover={{ bg: "gray.50" }}
+                  >
+                    <Text fontWeight="bold">{course.title}</Text>
+                    <Text fontSize="sm" color="gray.500">{course.category}</Text>
+                  </Box>
+                ))
+              ) : searchQuery.length > 2 ? (
+                <Text px={4} py={3} color="gray.500">No courses found. Try another search term.</Text>
+              ) : null}
             </Box>
           )}
         </Flex>
 
         {/* CTA Button */}
         <Button
-          as={Link} to="/signup" colorScheme="blue" size="lg" px={10} py={6} borderRadius="full" fontWeight="bold"
+          as={Link} to="/signup" 
+          colorScheme="blue" 
+          size="lg" 
+          px={10} 
+          py={6} 
+          borderRadius="full" 
+          fontWeight="bold"
           rightIcon={<FaArrowRight />}
           _hover={{ transform: "translateY(-3px)", boxShadow: "lg" }}
           transition="all 0.2s"
@@ -223,20 +244,21 @@ const Hero = () => {
       <Box
         position="relative"
         w={{ base: "100%", md: "45%" }}
-        h={{ base: "300px", md: "400px", lg: "500px" }}
+        h={{ base: "280px", md: "380px", lg: "480px" }} // Slightly reduced height
         mt={{ base: 8, md: 0 }}
         borderRadius="xl"
         overflow="hidden"
         boxShadow="xl"
       >
-        <Image
-          src={images[currentImage]}
-          alt={`Slide ${currentImage + 1}`}
-          objectFit="cover"
-          w="100%"
-          h="100%"
-          transition="opacity 0.5s ease"
-        />
+        <Fade key={currentImage} in={true} transition={{ enter: { duration: 0.5 } }}>
+          <Image
+            src={images[currentImage]}
+            alt={`Slide ${currentImage + 1}`}
+            objectFit="cover"
+            w="100%"
+            h="100%"
+          />
+        </Fade>
         <Box
           position="absolute"
           bottom={0}

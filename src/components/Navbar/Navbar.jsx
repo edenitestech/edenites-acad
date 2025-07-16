@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
+import { Tooltip } from '@chakra-ui/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -30,6 +31,10 @@ const NavContainer = styled.div`
   width: 100%;
   padding: 0 2rem;
   max-width: 1200px;
+  
+  @media screen and (max-width: 950px) {
+    position: relative;
+  }
 `;
 
 const NavLogo = styled(Link)`
@@ -53,6 +58,10 @@ const MobileIcon = styled.div`
     font-size: 1.8rem;
     cursor: pointer;
     color: ${({ scrolled }) => (scrolled ? '#2b5876' : '#3182ce')};
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
   }
 `;
 
@@ -133,12 +142,16 @@ const MobileMenu = styled.div`
     flex-direction: column;
     position: fixed;
     top: 80px;
-    left: 0;
     right: 0;
+    width: 70%;
+    height: calc(100vh - 80px);
     background: white;
     padding: 2rem;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    box-shadow: -5px 5px 10px rgba(0,0,0,0.1);
     gap: 1rem;
+    z-index: 999;
+    transform: ${({ isOpen }) => isOpen ? 'translateX(0)' : 'translateX(100%)'};
+    transition: transform 0.3s ease;
   }
 `;
 
@@ -147,10 +160,72 @@ const MobileAuthButtons = styled.div`
   
   @media screen and (max-width: 950px) {
     display: flex;
-    // flex-direction: column;
+    flex-direction: column;
     gap: 1rem;
     margin-top: 1rem;
   }
+`;
+
+const UserProfile = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(49, 130, 206, 0.1);
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    color: ${({ scrolled }) => (scrolled ? '#2b5876' : '#3182ce')};
+  }
+  
+  .dashboard-text {
+    font-size: 0.7rem;
+    color: ${({ scrolled }) => (scrolled ? '#4a5568' : '#63b3ed')};
+    white-space: nowrap;
+  }
+`;
+
+// Mobile user profile container
+const MobileUserContainer = styled.div`
+  display: none;
+  
+  @media screen and (max-width: 950px) {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 0.5rem;
+  }
+`;
+
+const UserIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(49, 130, 206, 0.1);
+  color: #3182ce;
+`;
+
+const WelcomeText = styled.span`
+  font-size: 0.75rem;
+  padding-left: 1rem;
+  color: #3182ce;
 `;
 
 const Navbar = () => {
@@ -179,6 +254,21 @@ const Navbar = () => {
           <LogoImage src={Logo} alt="Edenites Academy Logo" scrolled={scrolled} />
         </NavLogo>
 
+        {/* Mobile User Profile (centered) */}
+        {currentUser && (
+          <MobileUserContainer>
+            <UserIcon>
+              <FaUserCircle size={20} />
+            </UserIcon>
+            <div className="user-info">
+              <span className="user-name">
+                {currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}
+              </span>
+              <span className="dashboard-text">Dashboard</span>
+            </div>
+          </MobileUserContainer>
+        )}
+
         <MobileIcon onClick={() => setIsOpen(!isOpen)} scrolled={scrolled}>
           {isOpen ? <FaTimes /> : <FaBars />}
         </MobileIcon>
@@ -194,10 +284,28 @@ const Navbar = () => {
 
         {currentUser ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <NavLink to="/dashboard" scrolled={scrolled} style={{ display: 'flex', alignItems: 'center' }}>
-              <FaUserCircle style={{ marginRight: '0.5rem' }} />
-              {currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}
-            </NavLink>
+            <Tooltip 
+              label="Go to your dashboard" 
+              placement="bottom" 
+              hasArrow 
+              bg="blue.500"
+              openDelay={500}
+            >
+              <UserProfile 
+                as={Link} 
+                to="/dashboard" 
+                scrolled={scrolled}
+              >
+                <FaUserCircle size={24} />
+                <div className="user-info">
+                  <span className="user-name">
+                    {currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}
+                  </span>
+                  <span className="dashboard-text">Dashboard</span>
+                </div>
+              </UserProfile>
+            </Tooltip>
+            
             <AuthButtons>
               <NavButton onClick={handleLogout} scrolled={scrolled}>Logout</NavButton>
             </AuthButtons>
@@ -220,7 +328,15 @@ const Navbar = () => {
         
         {currentUser ? (
           <>
-            <NavLink to="/dashboard" onClick={() => setIsOpen(false)} scrolled={true}>Dashboard</NavLink>
+            <NavLink to="/dashboard" onClick={() => setIsOpen(false)} scrolled={true}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <FaUserCircle style={{ marginRight: '10px' }} />
+                Dashboard
+              </div>
+            </NavLink>
+            <WelcomeText>
+              Welcome back, {currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}!
+            </WelcomeText>
             <MobileAuthButtons>
               <NavButton onClick={handleLogout} scrolled={true}>Logout</NavButton>
             </MobileAuthButtons>
@@ -235,5 +351,4 @@ const Navbar = () => {
     </Nav>
   );
 };
-
 export default Navbar;
