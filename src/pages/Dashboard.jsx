@@ -1,28 +1,51 @@
-// src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import styled from 'styled-components';
 import { LoadingSpinner } from '../components/UI/LoadingSpinner';
-import api from '../services/api';  // Using your existing api service
-import { ENROLLED_COURSES, AVAILABLE_COURSES } from '../services/endpoints';
-import { FaUserCircle, FaShoppingCart, FaTrash, FaPlus } from 'react-icons/fa';
+import api from '../services/api';
+import { ENROLLED_COURSES, AVAILABLE_COURSES, DASHBOARD_SUMMARY } from '../services/endpoints';
+import { 
+  FaUserCircle, FaShoppingCart, FaTrash, FaPlus, 
+  FaChartLine, FaCertificate, FaBook, FaCog 
+} from 'react-icons/fa';
+import { EditProfileForm } from '../components/Dashboard/EditProfileForm';
+import { ChangePasswordForm } from '../components/Dashboard/ChangePasswordForm';
 
 const DashboardContainer = styled.div`
   display: grid;
   grid-template-columns: 280px 1fr;
   min-height: 100vh;
   background-color: #f5f7fa;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const Sidebar = styled.aside`
   background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
   color: white;
   padding: 2rem 1rem;
+  position: fixed;
+  width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+  
+  @media (max-width: 768px) {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
 `;
 
 const MainContent = styled.main`
   padding: 2rem;
   overflow-y: auto;
+  margin-left: 280px;
+  
+  @media (max-width: 768px) {
+    margin-left: 0;
+  }
 `;
 
 const UserProfile = styled.div`
@@ -88,6 +111,37 @@ const SectionHeader = styled.div`
   margin-bottom: 1.5rem;
 `;
 
+const SummaryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+`;
+
+const SummaryCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+`;
+
+const SummaryTitle = styled.h3`
+  font-size: 1rem;
+  color: #718096;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const SummaryValue = styled.div`
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2d3748;
+`;
+
 const CourseGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -148,24 +202,35 @@ const Button = styled.button`
     background: #e53e3e;
     color: white;
   }
+  
+  &.outline {
+    background: transparent;
+    border: 1px solid #48bb99;
+    color: #48bb99;
+  }
 `;
 
 const Dashboard = () => {
-  const { currentUser, isLoading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('my-courses');
+  const { currentUser, isLoading: authLoading, logout, refreshUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [courses, setCourses] = useState([]);
   const [availableCourses, setAvailableCourses] = useState([]);
-  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [dashboardSummary, setDashboardSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchDashboardData = async () => {
       if (!currentUser) return;
       
       try {
-        setLoadingCourses(true);
+        setLoading(true);
         setError(null);
 
+        // Fetch dashboard summary
+        const summaryResponse = await api.get(DASHBOARD_SUMMARY);
+        setDashboardSummary(summaryResponse.data);
+        
         // Fetch enrolled courses
         const enrolledResponse = await api.get(ENROLLED_COURSES);
         setCourses(enrolledResponse.data.results || enrolledResponse.data);
@@ -175,26 +240,26 @@ const Dashboard = () => {
         setAvailableCourses(availableResponse.data.results || availableResponse.data);
         
       } catch (err) {
-        console.error('Failed to fetch courses:', err);
-        setError(err.response?.data?.message || 'Failed to load courses');
-        
-        // Your interceptor will handle 401 errors automatically
-        if (err.response?.status !== 401) {
-          // Only show non-authentication errors
-          setError(err.response?.data?.message || 'Failed to load courses');
-        }
+        console.error('Failed to fetch dashboard data:', err);
+        setError(err.response?.data?.message || 'Failed to load dashboard data');
       } finally {
-        setLoadingCourses(false);
+        setLoading(false);
       }
     };
     
-    fetchCourses();
+    fetchDashboardData();
   }, [currentUser]);
 
   const handleRemoveCourse = async (courseId) => {
     try {
       await api.delete(`/courses/${courseId}/unenroll/`);
       setCourses(prev => prev.filter(course => course.id !== courseId));
+      
+      // Update dashboard summary
+      setDashboardSummary(prev => ({
+        ...prev,
+        enrolled_courses: prev.enrolled_courses - 1
+      }));
     } catch (err) {
       console.error('Failed to remove course:', err);
       setError(err.response?.data?.message || 'Failed to unenroll from course');
@@ -214,236 +279,42 @@ const Dashboard = () => {
       setCourses(enrolledResponse.data.results || enrolledResponse.data);
       setAvailableCourses(availableResponse.data.results || availableResponse.data);
       
+      // Update dashboard summary
+      setDashboardSummary(prev => ({
+        ...prev,
+        enrolled_courses: prev.enrolled_courses + 1
+      }));
+      
     } catch (err) {
       console.error('Failed to enroll:', err);
       setError(err.response?.data?.message || 'Failed to enroll in course');
     }
   };
 
-  if (authLoading || loadingCourses) {
-    return <LoadingSpinner type="page" />;
-  }
-
-  return (
-    <DashboardContainer>
-      <Sidebar>
-        <UserProfile>
-          <Avatar>
-            <FaUserCircle />
-          </Avatar>
-          <UserName>
-            {currentUser?.firstName} {currentUser?.lastName}
-          </UserName>
-          <UserEmail>{currentUser.email}</UserEmail>
-        </UserProfile>
-        
-        <NavItem 
-          className={activeTab === 'my-courses' ? 'active' : ''}
-          onClick={() => setActiveTab('my-courses')}
-        >
-          <FaUserCircle /> My Courses
-        </NavItem>
-        <NavItem 
-          className={activeTab === 'browse' ? 'active' : ''}
-          onClick={() => setActiveTab('browse')}
-        >
-          <FaShoppingCart /> Browse Courses
-        </NavItem>
-        <NavItem onClick={logout}>
-          <FaUserCircle /> Logout
-        </NavItem>
-      </Sidebar>
-      
-      <MainContent>
-        {activeTab === 'my-courses' ? (
-          <Section>
-            <SectionHeader>
-              <h2>My Learning</h2>
-            </SectionHeader>
-            
-            {courses.length > 0 ? (
-              <CourseGrid>
-                {courses.map(course => (
-                  <CourseCard key={course.id}>
-                    <CourseImage />
-                    <CourseContent>
-                      <CourseTitle>{course.title}</CourseTitle>
-                      <p>Instructor: {course.instructor}</p>
-                      <div>
-                        <p>Progress: {course.progress}%</p>
-                        <div style={{
-                          height: '6px', 
-                          background: '#e0e0e0', 
-                          borderRadius: '3px',
-                          margin: '10px 0'
-                        }}>
-                          <div style={{
-                            width: `${course.progress}%`,
-                            height: '100%',
-                            background: '#48bb99',
-                            borderRadius: '3px'
-                          }}></div>
-                        </div>
-                      </div>
-                      <CourseMeta>
-                        <Button 
-                          className="primary"
-                          onClick={() => console.log('Continue learning')}
-                        >
-                          Continue
-                        </Button>
-                        <Button 
-                          className="danger"
-                          onClick={() => handleRemoveCourse(course.id)}
-                        >
-                          <FaTrash /> Remove
-                        </Button>
-                      </CourseMeta>
-                    </CourseContent>
-                  </CourseCard>
-                ))}
-              </CourseGrid>
-            ) : (
-              <p>You haven't enrolled in any courses yet.</p>
-            )}
-          </Section>
-        ) : (
-          <Section>
-            <SectionHeader>
-              <h2>Available Courses</h2>
-            </SectionHeader>
-            
-            {availableCourses.length > 0 ? (
-              <CourseGrid>
-                {availableCourses.map(course => (
-                  <CourseCard key={course.id}>
-                    <CourseImage />
-                    <CourseContent>
-                      <CourseTitle>{course.title}</CourseTitle>
-                      <p>Instructor: {course.instructor}</p>
-                      <p>Price: ${course.price}</p>
-                      <CourseMeta>
-                        <Button 
-                          className="primary"
-                          onClick={() => handleEnrollCourse(course)}
-                        >
-                          <FaPlus /> Enroll Now
-                        </Button>
-                      </CourseMeta>
-                    </CourseContent>
-                  </CourseCard>
-                ))}
-              </CourseGrid>
-            ) : (
-              <p>No available courses at the moment.</p>
-            )}
-          </Section>
-        )}
-        
-        <Section>
-          <SectionHeader>
-            <h2>Account Settings</h2>
-          </SectionHeader>
-          <div>
-            <Button onClick={() => console.log('Edit profile')}>
-              Edit Profile
-            </Button>
-            <Button onClick={() => console.log('Change password')}>
-              Change Password
-            </Button>
-            <Button className="danger" onClick={logout}>
-              Logout
-            </Button>
-          </div>
-        </Section>
-      </MainContent>
-    </DashboardContainer>
-  );
-};
-
-export default Dashboard;
-
-
-/*
-
-const Dashboard = () => {
-  const { currentUser, isLoading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('my-courses');
-  const [courses, setCourses] = useState([]);
-  const [availableCourses, setAvailableCourses] = useState([]);
-  const [loadingCourses, setLoadingCourses] = useState(true); 
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        // In a real app, you'd fetch from your backend API
-        // For now, we'll use mock data
-        setCourses([
-          {
-            id: 1,
-            title: 'Introduction to Web Development',
-            progress: 65,
-            instructor: 'John Smith',
-            price: 49.99
-          },
-          {
-            id: 2,
-            title: 'Advanced JavaScript Concepts',
-            progress: 30,
-            instructor: 'Sarah Johnson',
-            price: 59.99
-          },
-          {
-            id: 3,
-            title: 'React Masterclass',
-            progress: 0,
-            instructor: 'Mike Chen',
-            price: 79.99
-          }
-        ]);
-        
-        setAvailableCourses([
-          {
-            id: 4,
-            title: 'Python for Data Science',
-            instructor: 'Alex Rodriguez',
-            price: 89.99
-          },
-          {
-            id: 5,
-            title: 'UI/UX Design Principles',
-            instructor: 'Emily Wilson',
-            price: 69.99
-          },
-          {
-            id: 6,
-            title: 'Mobile App Development',
-            instructor: 'David Kim',
-            price: 99.99
-          }
-        ]);
-      } catch (error) {
-        console.error("Failed to fetch courses:", error);
-      } finally {
-         setLoadingCourses(false);
-      }
-    };
-    
-    if (currentUser) {
-      fetchCourses();
+  const handleProfileUpdate = async (updatedData) => {
+    try {
+      const response = await api.put('/auth/profile/', updatedData);
+      refreshUser(response.data);
+      return true;
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+      setError(err.response?.data?.message || 'Failed to update profile');
+      return false;
     }
-  }, [currentUser]);
-
-  const handleRemoveCourse = (courseId) => {
-    setCourses(courses.filter(course => course.id !== courseId));
   };
 
-  const handleEnrollCourse = (course) => {
-    setCourses([...courses, { ...course, progress: 0 }]);
-    setAvailableCourses(availableCourses.filter(c => c.id !== course.id));
+  const handlePasswordChange = async (passwords) => {
+    try {
+      await api.post('/auth/password/change/', passwords);
+      return true;
+    } catch (err) {
+      console.error('Failed to change password:', err);
+      setError(err.response?.data?.message || 'Failed to change password');
+      return false;
+    }
   };
 
-  if (authLoading || loadingCourses) {
+  if (authLoading || loading) {
     return <LoadingSpinner type="page" />;
   }
 
@@ -461,10 +332,16 @@ const Dashboard = () => {
         </UserProfile>
         
         <NavItem 
+          className={activeTab === 'dashboard' ? 'active' : ''}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          <FaChartLine /> Dashboard
+        </NavItem>
+        <NavItem 
           className={activeTab === 'my-courses' ? 'active' : ''}
           onClick={() => setActiveTab('my-courses')}
         >
-          <FaUserCircle /> My Courses
+          <FaBook /> My Courses
         </NavItem>
         <NavItem 
           className={activeTab === 'browse' ? 'active' : ''}
@@ -472,13 +349,91 @@ const Dashboard = () => {
         >
           <FaShoppingCart /> Browse Courses
         </NavItem>
+        <NavItem 
+          className={activeTab === 'account' ? 'active' : ''}
+          onClick={() => setActiveTab('account')}
+        >
+          <FaCog /> Account Settings
+        </NavItem>
         <NavItem onClick={logout}>
           <FaUserCircle /> Logout
         </NavItem>
       </Sidebar>
       
       <MainContent>
-        {activeTab === 'my-courses' ? (
+        {activeTab === 'dashboard' && dashboardSummary && (
+          <>
+            <Section>
+              <SectionHeader>
+                <h2>Learning Summary</h2>
+              </SectionHeader>
+              
+              <SummaryGrid>
+                <SummaryCard>
+                  <SummaryTitle><FaBook /> Enrolled Courses</SummaryTitle>
+                  <SummaryValue>{dashboardSummary.enrolled_courses}</SummaryValue>
+                </SummaryCard>
+                
+                <SummaryCard>
+                  <SummaryTitle><FaCertificate /> Certificates</SummaryTitle>
+                  <SummaryValue>{dashboardSummary.certificates}</SummaryValue>
+                </SummaryCard>
+                
+                <SummaryCard>
+                  <SummaryTitle><FaChartLine /> Average Progress</SummaryTitle>
+                  <SummaryValue>{dashboardSummary.average_progress}%</SummaryValue>
+                </SummaryCard>
+                
+                <SummaryCard>
+                  <SummaryTitle><FaUserCircle /> Learning Streak</SummaryTitle>
+                  <SummaryValue>{dashboardSummary.learning_streak} days</SummaryValue>
+                </SummaryCard>
+              </SummaryGrid>
+            </Section>
+            
+            <Section>
+              <SectionHeader>
+                <h2>Recent Activity</h2>
+                <Button className="outline">View All</Button>
+              </SectionHeader>
+              
+              {dashboardSummary.recent_activity && dashboardSummary.recent_activity.length > 0 ? (
+                <div>
+                  {dashboardSummary.recent_activity.map((activity, index) => (
+                    <div key={index} style={{ 
+                      padding: '1rem', 
+                      borderBottom: '1px solid #e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1rem'
+                    }}>
+                      <div style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%', 
+                        background: '#48bb99',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white'
+                      }}>
+                        {activity.icon}
+                      </div>
+                      <div>
+                        <p style={{ margin: 0 }}>{activity.description}</p>
+                        <small style={{ color: '#718096' }}>{activity.timestamp}</small>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>No recent activity</p>
+              )}
+            </Section>
+          </>
+        )}
+        
+        {activeTab === 'my-courses' && (
           <Section>
             <SectionHeader>
               <h2>My Learning</h2>
@@ -511,7 +466,7 @@ const Dashboard = () => {
                       <CourseMeta>
                         <Button 
                           className="primary"
-                          onClick={() => console.log('Continue learning')}
+                          onClick={() => window.location.href = `/courses/${course.id}`}
                         >
                           Continue
                         </Button>
@@ -527,10 +482,20 @@ const Dashboard = () => {
                 ))}
               </CourseGrid>
             ) : (
-              <p>You haven't enrolled in any courses yet.</p>
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p>You haven't enrolled in any courses yet.</p>
+                <Button 
+                  className="primary"
+                  onClick={() => setActiveTab('browse')}
+                >
+                  Browse Courses
+                </Button>
+              </div>
             )}
           </Section>
-        ) : (
+        )}
+        
+        {activeTab === 'browse' && (
           <Section>
             <SectionHeader>
               <h2>Available Courses</h2>
@@ -548,9 +513,15 @@ const Dashboard = () => {
                       <CourseMeta>
                         <Button 
                           className="primary"
-                          onClick={() => handleEnrollCourse(course)}
+                          onClick={() => handleEnrollCourse(course.id)}
                         >
                           <FaPlus /> Enroll Now
+                        </Button>
+                        <Button 
+                          className="outline"
+                          onClick={() => window.location.href = `/courses/${course.id}`}
+                        >
+                          View Details
                         </Button>
                       </CourseMeta>
                     </CourseContent>
@@ -563,27 +534,36 @@ const Dashboard = () => {
           </Section>
         )}
         
-        <Section>
-          <SectionHeader>
-            <h2>Account Settings</h2>
-          </SectionHeader>
-          <div>
-            <Button onClick={() => console.log('Edit profile')}>
-              Edit Profile
-            </Button>
-            <Button onClick={() => console.log('Change password')}>
-              Change Password
-            </Button>
-            <Button className="danger" onClick={logout}>
-              Logout
-            </Button>
-          </div>
-        </Section>
+        {activeTab === 'account' && (
+          <>
+            <Section>
+              <SectionHeader>
+                <h2>Edit Profile</h2>
+              </SectionHeader>
+              <EditProfileForm 
+                currentUser={currentUser} 
+                onUpdate={handleProfileUpdate} 
+              />
+            </Section>
+            
+            <Section>
+              <SectionHeader>
+                <h2>Change Password</h2>
+              </SectionHeader>
+              <ChangePasswordForm onChange={handlePasswordChange} />
+            </Section>
+          </>
+        )}
+        
+        {error && (
+          <Section>
+            <div style={{ color: '#e53e3e', padding: '1rem' }}>
+              {error}
+            </div>
+          </Section>
+        )}
       </MainContent>
     </DashboardContainer>
   );
 };
-
 export default Dashboard;
-
-*/

@@ -198,6 +198,7 @@ const UserProfile = styled.div`
 `;
 
 // Mobile user profile container
+/*
 const MobileUserContainer = styled.div`
   display: none;
   
@@ -211,6 +212,7 @@ const MobileUserContainer = styled.div`
   }
 `;
 
+
 const UserIcon = styled.div`
   display: flex;
   align-items: center;
@@ -221,6 +223,7 @@ const UserIcon = styled.div`
   background: rgba(49, 130, 206, 0.1);
   color: #3182ce;
 `;
+*/
 
 const WelcomeText = styled.span`
   font-size: 0.75rem;
@@ -253,21 +256,7 @@ const Navbar = () => {
         <NavLogo to="/">
           <LogoImage src={Logo} alt="Edenites Academy Logo" scrolled={scrolled} />
         </NavLogo>
-
-        {/* Mobile User Profile (centered) */}
-        {currentUser && (
-          <MobileUserContainer>
-            <UserIcon>
-              <FaUserCircle size={20} />
-            </UserIcon>
-            <div className="user-info">
-              <span className="user-name">
-                {currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}
-              </span>
-              <span className="dashboard-text">Dashboard</span>
-            </div>
-          </MobileUserContainer>
-        )}
+        
 
         <MobileIcon onClick={() => setIsOpen(!isOpen)} scrolled={scrolled}>
           {isOpen ? <FaTimes /> : <FaBars />}

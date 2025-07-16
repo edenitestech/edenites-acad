@@ -1,5 +1,4 @@
-// src/contexts/AuthContext.js
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext();
@@ -7,67 +6,71 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
-  // Fetch user data from the dashboard endpoint
-  const fetchUserData = async () => {
+  // Fetch user data from API
+  const fetchUserData = useCallback(async () => {
     try {
       const { data } = await api.get('/auth/dashboard/');
       return {
         id: data.user.id,
         email: data.user.email,
-        fullname: `${data.user.first_name} ${data.user.last_name}`,
         firstName: data.user.first_name,
-        lastName: data.user.last_name, 
-        is_instructor: data.user.is_instructor
-        // Add other user properties you need
+        lastName: data.user.last_name,
+        fullName: `${data.user.first_name} ${data.user.last_name}`,
+        isInstructor: data.user.is_instructor,
+        role: data.role,
+        enrolledCourses: data.enrollments || [],
+        progressSummary: data.progress_summary || {},
+        notifications: data.notifications || [],
+        inbox: data.inbox || []
       };
     } catch (error) {
       console.error("Failed to fetch user data:", error);
+      setAuthError('Failed to load user data');
       throw error;
     }
-  };
-
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
-        if (refresh) {
-          const userData = await fetchUserData();
-          setCurrentUser(userData);
-        }
-      } catch (error) {
-        console.error("Session verification failed:", error);
-        // Clear tokens on error
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        sessionStorage.removeItem('access');
-        sessionStorage.removeItem('refresh');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    verifyAuth();
   }, []);
 
-  // Login Function
+  // Verify authentication on app load
+  const verifyAuth = useCallback(async () => {
+    try {
+      const refreshToken = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
+      if (!refreshToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      const userData = await fetchUserData();
+      setCurrentUser(userData);
+      setAuthError(null);
+    } catch (error) {
+      console.error("Session verification failed:", error);
+      setAuthError('Session verification failed');
+      logout();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchUserData]);
+
+  // Login function
   const login = async (credentials) => {
     try {
-      // Step 1: Authenticate and get tokens
+      setIsLoading(true);
+      setAuthError(null);
+      
+      // Authenticate and get tokens
       const { data } = await api.post('/auth/login/', {
         email: credentials.email,
         password: credentials.password
       });
 
-      // Step 2: Store tokens based on "Remember Me"
-      if (credentials.rememberMe) {
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
-      } else {
-        sessionStorage.setItem('access', data.access);
-        sessionStorage.setItem('refresh', data.refresh);
-      }
+      // Store tokens based on "Remember Me"
+      const storage = credentials.rememberMe ? localStorage : sessionStorage;
+      storage.setItem('access', data.access);
+      storage.setItem('refresh', data.refresh);
 
-      // Step 3: Fetch complete user data
+      // Fetch complete user data
       const userData = await fetchUserData();
       setCurrentUser(userData);
       
@@ -76,70 +79,107 @@ export function AuthProvider({ children }) {
       let message = 'Login failed. Please check your credentials.';
       if (error.response?.data?.detail) {
         message = error.response.data.detail;
+      } else if (error.response?.data?.non_field_errors) {
+        message = error.response.data.non_field_errors[0];
       }
+      setAuthError(message);
       return { success: false, message };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Signup function
   const signup = async (userData) => {
     try {
-      // Step 1: Register the user
-      const { data } = await api.post('/auth/register/', userData);
+      setIsLoading(true);
+      setAuthError(null);
       
-      // Step 2: Store tokens based on Remember me choice
-      if (userData.rememberMe) {
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
-      } else {
-        sessionStorage.setItem('access', data.access);
-        sessionStorage.setItem('refresh', data.refresh);
-      }
+      // Register the user
+      const { data } = await api.post('/auth/register/', {
+        fullname: `${userData.firstName} ${userData.lastName}`,
+        email: userData.email,
+        password: userData.password,
+        confirmPassword: userData.confirmPassword,
+        is_instructor: false
+      });
 
-      // Step 3: Fetch complete user data
+      // Store tokens
+      const storage = userData.rememberMe ? localStorage : sessionStorage;
+      storage.setItem('access', data.access);
+      storage.setItem('refresh', data.refresh);
+
+      // Fetch complete user data
       const user = await fetchUserData();
       setCurrentUser(user);
-      return { success: true, user };
       
+      return { success: true, user };
     } catch (error) {
       let message = 'Registration failed. Please try again.';
       
-      // Handle different error formats
       if (error.response?.data) {
-        if (error.response.data.detail) {
-          message = error.response.data.detail;
-        } else if (error.response.data.email) {
-          message = `Email error: ${error.response.data.email[0]}`;
+        // Handle backend validation errors
+        if (error.response.data.email) {
+          message = `Email: ${error.response.data.email[0]}`;
         } else if (error.response.data.password) {
-          message = `Password error: ${error.response.data.password[0]}`;
-        } else {
-          const firstErrorKey = Object.keys(error.response.data)[0];
-          message = error.response.data[firstErrorKey][0];
+          message = `Password: ${error.response.data.password[0]}`;
+        } else if (error.response.data.non_field_errors) {
+          message = error.response.data.non_field_errors[0];
+        } else if (error.response.data.detail) {
+          message = error.response.data.detail;
         }
       }
       
+      setAuthError(message);
       return { success: false, message };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Logout function
-  const logout = () => {
+  const logout = useCallback(() => {
     // Clear all storage locations
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
     sessionStorage.removeItem('access');
     sessionStorage.removeItem('refresh');
+    
+    // Clear current user
     setCurrentUser(null);
-    return true;
-  };
+    setAuthError(null);
+    
+    // Call logout API
+    api.post('/auth/logout/').catch(console.error);
+  }, []);
+
+  // Refresh user data
+  const refreshUser = useCallback(async () => {
+    try {
+      const userData = await fetchUserData();
+      setCurrentUser(userData);
+      return userData;
+    } catch (error) {
+      console.error("Failed to refresh user data:", error);
+      setAuthError('Failed to refresh user data');
+      throw error;
+    }
+  }, [fetchUserData]);
+
+  // Verify auth on mount
+  useEffect(() => {
+    verifyAuth();
+  }, [verifyAuth]);
 
   return (
     <AuthContext.Provider value={{ 
       currentUser, 
       isLoading,
+      authError,
       login, 
       signup, 
-      logout 
+      logout,
+      refreshUser
     }}>
       {children}
     </AuthContext.Provider>
