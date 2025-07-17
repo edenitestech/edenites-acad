@@ -10,74 +10,10 @@ import {
 } from 'react-icons/fa';
 import { EditProfileForm } from '../components/Dashboard/EditProfileForm';
 import { ChangePasswordForm } from '../components/Dashboard/ChangePasswordForm';
+import { Link } from 'react-router-dom';
 
-const DashboardContainer = styled.div`
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  min-height: 100vh;
-  background-color: #f5f7fa;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Sidebar = styled.aside`
-  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
-  color: white;
-  padding: 2rem 1rem;
-  position: fixed;
-  width: 280px;
-  height: 100vh;
-  overflow-y: auto;
-  
-  @media (max-width: 768px) {
-    position: relative;
-    width: 100%;
-    height: auto;
-  }
-`;
-
-const MainContent = styled.main`
-  padding: 2rem;
-  overflow-y: auto;
-  margin-left: 280px;
-  
-  @media (max-width: 768px) {
-    margin-left: 0;
-  }
-`;
-
-const UserProfile = styled.div`
-  text-align: center;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  margin-bottom: 1.5rem;
-`;
-
-const Avatar = styled.div`
-  margin: 0 auto 1rem;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: #48bb99;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-`;
-
-const UserName = styled.h2`
-  font-size: 1.5rem;
-  margin: 0.5rem 0;
-`;
-
-const UserEmail = styled.p`
-  color: #a0aec0;
-  margin: 0;
-`;
-
-const NavItem = styled.div`
+// Styled components
+const NavItem = styled(Link)`
   padding: 0.75rem 1rem;
   border-radius: 6px;
   margin-bottom: 0.5rem;
@@ -86,6 +22,8 @@ const NavItem = styled.div`
   align-items: center;
   gap: 0.75rem;
   transition: all 0.2s;
+  text-decoration: none;
+  color: white;
   
   &:hover {
     background: rgba(255,255,255,0.1);
@@ -102,6 +40,10 @@ const Section = styled.section`
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const SectionHeader = styled.div`
@@ -109,6 +51,12 @@ const SectionHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 `;
 
 const SummaryGrid = styled.div`
@@ -116,6 +64,10 @@ const SummaryGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const SummaryCard = styled.div`
@@ -146,6 +98,10 @@ const CourseGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const CourseCard = styled.div`
@@ -181,6 +137,12 @@ const CourseMeta = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
 `;
 
 const Button = styled.button`
@@ -190,24 +152,70 @@ const Button = styled.button`
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   font-weight: 500;
+  transition: all 0.2s;
   
   &.primary {
     background: #48bb99;
     color: white;
+    
+    &:hover {
+      background: #3a9c7d;
+    }
   }
   
   &.danger {
     background: #e53e3e;
     color: white;
+    
+    &:hover {
+      background: #c53030;
+    }
   }
   
   &.outline {
     background: transparent;
     border: 1px solid #48bb99;
     color: #48bb99;
+    
+    &:hover {
+      background: #f0fff9;
+    }
   }
+`;
+
+// User profile components
+const UserProfile = styled.div`
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+`;
+
+const Avatar = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #48bb99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+`;
+
+const UserName = styled.div`
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+`;
+
+const UserEmail = styled.div`
+  font-size: 0.9rem;
+  color: #a0aec0;
 `;
 
 const Dashboard = () => {
@@ -319,48 +327,11 @@ const Dashboard = () => {
   }
 
   return (
-    <DashboardContainer>
-      <Sidebar>
-        <UserProfile>
-          <Avatar>
-            <FaUserCircle />
-          </Avatar>
-          <UserName>
-            {currentUser?.firstName} {currentUser?.lastName}
-          </UserName>
-          <UserEmail>{currentUser.email}</UserEmail>
-        </UserProfile>
-        
-        <NavItem 
-          className={activeTab === 'dashboard' ? 'active' : ''}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          <FaChartLine /> Dashboard
-        </NavItem>
-        <NavItem 
-          className={activeTab === 'my-courses' ? 'active' : ''}
-          onClick={() => setActiveTab('my-courses')}
-        >
-          <FaBook /> My Courses
-        </NavItem>
-        <NavItem 
-          className={activeTab === 'browse' ? 'active' : ''}
-          onClick={() => setActiveTab('browse')}
-        >
-          <FaShoppingCart /> Browse Courses
-        </NavItem>
-        <NavItem 
-          className={activeTab === 'account' ? 'active' : ''}
-          onClick={() => setActiveTab('account')}
-        >
-          <FaCog /> Account Settings
-        </NavItem>
-        <NavItem onClick={logout}>
-          <FaUserCircle /> Logout
-        </NavItem>
-      </Sidebar>
+    <>
+      {/* Sidebar moved to DashboardLayout */}
       
-      <MainContent>
+      {/* Main Content */}
+      <div>
         {activeTab === 'dashboard' && dashboardSummary && (
           <>
             <Section>
@@ -466,7 +437,8 @@ const Dashboard = () => {
                       <CourseMeta>
                         <Button 
                           className="primary"
-                          onClick={() => window.location.href = `/courses/${course.id}`}
+                          as={Link}
+                          to={`/courses/${course.id}`}
                         >
                           Continue
                         </Button>
@@ -519,7 +491,8 @@ const Dashboard = () => {
                         </Button>
                         <Button 
                           className="outline"
-                          onClick={() => window.location.href = `/courses/${course.id}`}
+                          as={Link}
+                          to={`/courses/${course.id}`}
                         >
                           View Details
                         </Button>
@@ -562,8 +535,8 @@ const Dashboard = () => {
             </div>
           </Section>
         )}
-      </MainContent>
-    </DashboardContainer>
+      </div>
+    </>
   );
 };
 export default Dashboard;

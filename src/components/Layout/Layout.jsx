@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from '../Navbar/Navbar';
 import { Footer } from '../Footer/Footer'; 
 import styled from 'styled-components';
@@ -20,15 +20,23 @@ const MainContent = styled.main`
   }
 `;
 
-const Layout = () => (
-  <AppContainer>
-    <Navbar />
-    <MainContent>
-      <Outlet />
-    </MainContent>
-    <Support />
-    <Footer />
-  </AppContainer>
-);
+const Layout = () => {
+  const location = useLocation();
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  
+  if (isDashboardRoute) {
+    return <Outlet />;
+  }
 
+  return (
+    <AppContainer>
+      <Navbar />
+      <MainContent>
+        <Outlet />
+      </MainContent>
+      <Support />
+      <Footer />
+    </AppContainer>
+  );
+};
 export default Layout;

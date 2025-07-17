@@ -7,6 +7,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme';
 import { Preloader } from './components/UI/Preloader';
 import Layout from './components/Layout/Layout';
+import DashboardLayout from './components/Layout/DashboardLayout';
 import HomePage from './pages/HomePage';
 import FAQPage from './pages/FAQPage';
 import BlogPage from './pages/BlogPage';
@@ -71,7 +72,9 @@ function App() {
 
             {/* ✅ Protected Routes with children inside */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
             </Route>
 
             {/* Catch-all */}
@@ -82,5 +85,4 @@ function App() {
     </ChakraProvider>
   );
 }
-
 export default App;
