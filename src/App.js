@@ -17,7 +17,10 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard/Dashboard';
+import MyCourses from './pages/Dashboard/MyCourses';
+import BrowseCourses from './pages/Dashboard/BrowseCourses';
+import AccountSettings from './pages/Dashboard/AccountSettings';
 import CBTExamsPage from './pages/CBTExamsPage';
 import JAMBPage from './pages/JAMBPage';
 import WAECPage from './pages/WAECPage';
@@ -70,13 +73,13 @@ function App() {
             <Route path="/fashion-design" element={<FashionDesignPage />} />
             <Route path="/it-software" element={<ITSoftwarePage />} />
 
-            {/* ✅ Protected Routes with children inside */}
+            {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/courses" element={<Dashboard />} />
-                <Route path="/dashboard/browse" element={<Dashboard />} />
-                <Route path="/dashboard/account" element={<Dashboard />} />
+                <Route index element={<Dashboard />} />
+                <Route path="courses" element={<MyCourses />} />
+                <Route path="browse" element={<BrowseCourses />} />
+                <Route path="account" element={<AccountSettings />} />
               </Route>
             </Route>
 
@@ -88,4 +91,5 @@ function App() {
     </ChakraProvider>
   );
 }
+
 export default App;

@@ -1,15 +1,15 @@
-import { Outlet } from 'react-router-dom';
+
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import DashboardNavbar from '../Dashboard/DashboardNavbar';
 import DashboardFooter from '../Dashboard/DashboardFooter'; 
 import styled from 'styled-components';
 import { 
-  FaChartLine, FaCertificate, FaBook, FaShoppingCart, 
+  FaChartLine, FaBook, FaShoppingCart, 
   FaCog, FaUserCircle 
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
 
+// Styled Components
 const DashboardContainer = styled.div`
   display: flex;
   min-height: 100vh;
@@ -105,25 +105,14 @@ const UserEmail = styled.div`
 const DashboardLayout = () => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
-  
+
   // Determine active tab based on route
   const getActiveTab = () => {
-    if (location.pathname.startsWith('/dashboard/courses')) return 'my-courses';
-    if (location.pathname.startsWith('/dashboard/browse')) return 'browse';
-    if (location.pathname.startsWith('/dashboard/account')) return 'account';
+    if (location.pathname.includes('/dashboard/courses')) return 'courses';
+    if (location.pathname.includes('/dashboard/browse')) return 'browse';
+    if (location.pathname.includes('/dashboard/account')) return 'account';
     return 'dashboard';
   };
-  
-  const [activeTab, setActiveTab] = useState(getActiveTab());
-  
-  // Update active tab when location changes
-  useEffect(() => {
-    setActiveTab(getActiveTab());
-  }, [location]);
-
-  const initials = currentUser 
-    ? `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`
-    : '';
 
   return (
     <DashboardContainer>
@@ -131,7 +120,9 @@ const DashboardLayout = () => {
       <DashboardContent>
         <SidebarContainer>
           <UserProfile>
-            <Avatar>{initials}</Avatar>
+            <Avatar>
+              {currentUser?.initials || <FaUserCircle size={24} />}
+            </Avatar>
             <UserName>
               {currentUser?.firstName} {currentUser?.lastName}
             </UserName>
@@ -140,25 +131,25 @@ const DashboardLayout = () => {
           
           <NavItem 
             to="/dashboard"
-            className={activeTab === 'dashboard' ? 'active' : ''}
+            className={getActiveTab() === 'dashboard' ? 'active' : ''}
           >
             <FaChartLine /> Dashboard
           </NavItem>
           <NavItem 
             to="/dashboard/courses"
-            className={activeTab === 'my-courses' ? 'active' : ''}
+            className={getActiveTab() === 'courses' ? 'active' : ''}
           >
             <FaBook /> My Courses
           </NavItem>
           <NavItem 
             to="/dashboard/browse"
-            className={activeTab === 'browse' ? 'active' : ''}
+            className={getActiveTab() === 'browse' ? 'active' : ''}
           >
             <FaShoppingCart /> Browse Courses
           </NavItem>
           <NavItem 
             to="/dashboard/account"
-            className={activeTab === 'account' ? 'active' : ''}
+            className={getActiveTab() === 'account' ? 'active' : ''}
           >
             <FaCog /> Account Settings
           </NavItem>
