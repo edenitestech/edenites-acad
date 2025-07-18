@@ -1,5 +1,7 @@
+
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
+import { FaUser } from 'react-icons/fa';
 
 const AuthContext = createContext();
 
@@ -8,22 +10,32 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
+  // Helper function to get user initials
+  const getInitials = (user) => {
+    if (!user) return '';
+    return `${user.first_name?.charAt(0) || ''}${user.last_name?.charAt(0) || ''}`;
+  };
+
   // Fetch user data from API
   const fetchUserData = useCallback(async () => {
     try {
-      const { data } = await api.get('/auth/dashboard/');
+      const { data } = await api.get('/auth/profile/');
+      const dashboardData = await api.get('/auth/dashboard/');
+      
       return {
-        id: data.user.id,
-        email: data.user.email,
-        firstName: data.user.first_name,
-        lastName: data.user.last_name,
-        fullName: `${data.user.first_name} ${data.user.last_name}`,
-        isInstructor: data.user.is_instructor,
-        role: data.role,
-        enrolledCourses: data.enrollments || [],
-        progressSummary: data.progress_summary || {},
-        notifications: data.notifications || [],
-        inbox: data.inbox || []
+        id: data.id,
+        email: data.email,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        fullName: `${data.first_name} ${data.last_name}`,
+        isInstructor: data.is_instructor,
+        profilePicture: data.profile_picture || null, // Will be null if not available
+        initials: getInitials(data),
+        role: dashboardData.data.role,
+        enrolledCourses: dashboardData.data.enrollments || [],
+        progressSummary: dashboardData.data.progress_summary || {},
+        notifications: dashboardData.data.notifications || [],
+        inbox: dashboardData.data.inbox || []
       };
     } catch (error) {
       console.error("Failed to fetch user data:", error);

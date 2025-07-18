@@ -299,6 +299,14 @@ const Dashboard = () => {
     }
   };
 
+
+  // Add this function to handle tab changes
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // Update URL without reloading
+    window.history.pushState({}, '', `/dashboard/${tab === 'dashboard' ? '' : tab}`);
+  };
+
   const handleProfileUpdate = async (updatedData) => {
     try {
       const response = await api.put('/auth/profile/', updatedData);
@@ -328,7 +336,7 @@ const Dashboard = () => {
 
   return (
     <>
-      {/* Sidebar moved to DashboardLayout */}
+      {/* Sidebar has been moved to DashboardLayout */}
       
       {/* Main Content */}
       <div>
@@ -507,6 +515,27 @@ const Dashboard = () => {
           </Section>
         )}
         
+        {activeTab === 'account' && (
+          <>
+            <Section>
+              <SectionHeader>
+                <h2>Edit Profile</h2>
+              </SectionHeader>
+              <EditProfileForm 
+                currentUser={currentUser} 
+                onUpdate={handleProfileUpdate} 
+              />
+            </Section>
+            
+            <Section>
+              <SectionHeader>
+                <h2>Change Password</h2>
+              </SectionHeader>
+              <ChangePasswordForm onChange={handlePasswordChange} />
+            </Section>
+          </>
+        )}
+
         {activeTab === 'account' && (
           <>
             <Section>
