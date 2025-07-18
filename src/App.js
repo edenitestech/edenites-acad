@@ -53,12 +53,12 @@ function App() {
     <ChakraProvider theme={theme}>
       <Router>
         <Routes>
-          {/* Public routes outside Layout */}
+          {/* Public routes outside any layout */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           
+          {/* Public routes with main Layout */}
           <Route element={<Layout />}>
-            {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/blog" element={<BlogPage />} />
@@ -72,20 +72,20 @@ function App() {
             <Route path="/leather-crafting" element={<LeatherCraftingPage />} />
             <Route path="/fashion-design" element={<FashionDesignPage />} />
             <Route path="/it-software" element={<ITSoftwarePage />} />
-
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route element={<DashboardLayout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="courses" element={<MyCourses />} />
-                <Route path="browse" element={<BrowseCourses />} />
-                <Route path="account" element={<AccountSettings />} />
-              </Route>
-            </Route>
-
-            {/* Catch-all */}
-            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
+
+          {/* Dashboard routes with DashboardLayout */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/courses" element={<MyCourses />} />
+              <Route path="/dashboard/browse" element={<BrowseCourses />} />
+              <Route path="/dashboard/account" element={<AccountSettings />} />
+            </Route>
+          </Route>
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </ChakraProvider>
