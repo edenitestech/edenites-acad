@@ -1,44 +1,113 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import api from '../services/api';
+import { COURSE_DETAIL, ENROLL_COURSE } from '../services/endpoints';
 
 const CourseDetailsPage = () => {
   const { courseId } = useParams();
+  const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [isEnrolling, setIsEnrolling] = useState(false);
-  
-  // In a real app, you would fetch course details from an API
-  const course = {
-    id: 1,
-    category: 'IT Certification',
-    title: 'AWS Certified Solutions Architect',
-    description: 'Master AWS cloud architecture and prepare for the certification exam.',
-    rating: 4.8,
-    reviews: 1200,
-    students: 5432,
-    price: 89.99,
-    originalPrice: 129.99,
-    content: [
-      'Module 1: Introduction to Cloud Computing',
-      'Module 2: AWS Fundamentals',
-      'Module 3: Designing Highly Available Systems',
-      'Module 4: Deployment Strategies',
-      'Module 5: Security Best Practices',
-      'Module 6: Exam Preparation'
-    ],
-    instructor: {
-      name: 'Jane Smith',
-      bio: 'AWS Solutions Architect with 10+ years of experience'
+
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(COURSE_DETAIL(courseId));
+        
+        // Map API response to match your component's expected structure
+        const courseData = {
+          id: response.data.id,
+          category: response.data.category?.name || 'General',
+          title: response.data.title,
+          description: response.data.description,
+          rating: response.data.average_rating || 0,
+          reviews: response.data.review_count || 0,
+          students: response.data.enrollment_count || 0,
+          price: response.data.price,
+          originalPrice: response.data.original_price || null,
+          content: response.data.modules || ['Course content not available'],
+          instructor: {
+            name: response.data.instructor?.name || 'Unknown Instructor',
+            bio: response.data.instructor?.bio || 'No bio available'
+          },
+          // Add any other necessary mappings
+        };
+        
+        setCourse(courseData);
+      } catch (err) {
+        console.error('Failed to fetch course:', err);
+        setError(err.response?.data?.message || 'Failed to load course details');
+        
+        // Redirect to courses page if course not found
+        if (err.response?.status === 404) {
+          navigate('/courses');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourseDetails();
+  }, [courseId, navigate]);
+
+  const handleEnroll = async () => {
+    try {
+      setIsEnrolling(true);
+      
+      // Call the enrollment endpoint
+      await api.post(ENROLL_COURSE(courseId));
+      
+      // Redirect to dashboard or show success message
+      alert(`Successfully enrolled in "${course.title}"!`);
+      navigate('/dashboard/courses');
+    } catch (err) {
+      console.error('Enrollment failed:', err);
+      alert(err.response?.data?.message || 'Enrollment failed. Please try again.');
+    } finally {
+      setIsEnrolling(false);
     }
   };
 
-  const handleEnroll = () => {
-    setIsEnrolling(true);
-    // Simulate enrollment process
-    setTimeout(() => {
-      alert(`Successfully enrolled in "${course.title}"!`);
-      setIsEnrolling(false);
-    }, 1500);
-  };
+  if (loading) {
+    return (
+      <Container>
+        <LoadingSpinner />
+        <LoadingText>Loading course details...</LoadingText>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <ErrorMessage>
+          <ErrorIcon>⚠️</ErrorIcon>
+          <h3>{error}</h3>
+          <BackButton onClick={() => navigate('/courses')}>
+            Back to Courses
+          </BackButton>
+        </ErrorMessage>
+      </Container>
+    );
+  }
+
+  if (!course) {
+    return (
+      <Container>
+        <ErrorMessage>
+          <ErrorIcon>❌</ErrorIcon>
+          <h3>Course not found</h3>
+          <BackButton onClick={() => navigate('/courses')}>
+            Browse Available Courses
+          </BackButton>
+        </ErrorMessage>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -53,14 +122,19 @@ const CourseDetailsPage = () => {
           
           <Details>
             <DetailItem>
-              <Label>Rating:</Label> {course.rating} ({course.reviews} reviews)
+              <Label>Rating:</Label> {course.rating.toFixed(1)} ({course.reviews} reviews)
             </DetailItem>
             <DetailItem>
-              <Label>Students:</Label> {course.students}
+              <Label>Students:</Label> {course.students.toLocaleString()}
             </DetailItem>
             <DetailItem>
               <Label>Instructor:</Label> {course.instructor.name}
             </DetailItem>
+            {course.instructor.bio && (
+              <DetailItem>
+                <Label>About Instructor:</Label> {course.instructor.bio}
+              </DetailItem>
+            )}
           </Details>
           
           <Curriculum>
@@ -77,11 +151,11 @@ const CourseDetailsPage = () => {
           <Pricing>
             {course.originalPrice ? (
               <>
-                <OriginalPrice>${course.originalPrice}</OriginalPrice>
-                <DiscountedPrice>${course.price}</DiscountedPrice>
+                <OriginalPrice>₦{course.originalPrice.toLocaleString()}</OriginalPrice>
+                <DiscountedPrice>₦{course.price.toLocaleString()}</DiscountedPrice>
               </>
             ) : (
-              <Price>${course.price}</Price>
+              <Price>₦{course.price.toLocaleString()}</Price>
             )}
           </Pricing>
           
@@ -93,6 +167,7 @@ const CourseDetailsPage = () => {
     </Container>
   );
 };
+
 
 // Styled components
 const Container = styled.div`
@@ -222,5 +297,54 @@ const EnrollButton = styled.button`
     cursor: not-allowed;
   }
 `;
+
+// Additional styled components for loading and error states
+const LoadingSpinner = styled.div`
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3182ce;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingText = styled.p`
+  text-align: center;
+  color: #4a5568;
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+`;
+
+const ErrorIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+`;
+
+const BackButton = styled.button`
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  
+  &:hover {
+    background: #2b6cb0;
+  }
+`;
+
 
 export default CourseDetailsPage;
