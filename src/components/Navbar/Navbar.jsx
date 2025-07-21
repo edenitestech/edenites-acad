@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { Tooltip } from '@chakra-ui/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from '../../assets/images/eden-acada logo.png';
 
@@ -44,6 +44,8 @@ const NavLogo = styled(Link)`
   align-items: center;
   text-decoration: none;
 `;
+
+
 
 const LogoImage = styled.img`
   height: ${({ scrolled }) => (scrolled ? '40px' : '50px')};
@@ -94,7 +96,7 @@ const NavLink = styled(Link)`
   &:after {
     content: '';
     position: absolute;
-    width: 0;
+    width: ${({ $isActive }) => ($isActive ? '100%' : '0')};
     height: 2px;
     bottom: 0;
     left: 0;
@@ -197,34 +199,6 @@ const UserProfile = styled.div`
   }
 `;
 
-// Mobile user profile container
-/*
-const MobileUserContainer = styled.div`
-  display: none;
-  
-  @media screen and (max-width: 950px) {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    gap: 0.5rem;
-  }
-`;
-
-
-const UserIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(49, 130, 206, 0.1);
-  color: #3182ce;
-`;
-*/
-
 const WelcomeText = styled.span`
   font-size: 0.75rem;
   padding-left: 1rem;
@@ -236,6 +210,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -262,13 +237,38 @@ const Navbar = () => {
           {isOpen ? <FaTimes /> : <FaBars />}
         </MobileIcon>
 
+
         <NavMenu>
-          <li><NavLink to="/" scrolled={scrolled}>Explore</NavLink></li>
-          <li><NavLink to="/courses" scrolled={scrolled}>Courses</NavLink></li>
-          <li><NavLink to="/about" scrolled={scrolled}>About</NavLink></li>
-          <li><NavLink to="/contact" scrolled={scrolled}>Contact</NavLink></li>
-          <li><NavLink to="/faq" scrolled={scrolled}>FAQs</NavLink></li>
-          <li><NavLink to="/blog" scrolled={scrolled}>Blog</NavLink></li>
+          <li>
+            <NavLink to="/" scrolled={scrolled} $isActive={location.pathname === '/'}>
+              Explore
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/courses" scrolled={scrolled} $isActive={location.pathname.startsWith('/courses')}>
+              Courses
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/about" scrolled={scrolled} $isActive={location.pathname === '/about'}>
+              About
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/contact" scrolled={scrolled} $isActive={location.pathname.startsWith('/contact')}>
+              Contact
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/faq" scrolled={scrolled} $isActive={location.pathname === '/faq'}>
+              FAQs
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/blog" scrolled={scrolled} $isActive={location.pathname.startsWith('/blog')}>
+              Blog
+            </NavLink>
+          </li>
         </NavMenu>
 
         {currentUser ? (

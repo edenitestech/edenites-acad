@@ -31,6 +31,7 @@ export const CourseImage = styled.div`
   align-items: center;
 `;
 
+
 export const PlayButton = styled.div`
   color: white;
   opacity: 0.8;
@@ -194,7 +195,14 @@ export const CoursesGrid = styled.div`
 `;
 
 // CourseCard component
-export const CourseCard = ({ course }) => {
+  
+export const CourseCard = ({ course, onEnroll }) => {
+  const handleEnroll = (e) => {
+    e.preventDefault();
+    if (onEnroll) {
+      onEnroll(course.id);
+    }
+  };
   return (
     <CourseCardContainer data-aos="fade-up">
       <CourseImage>
@@ -233,7 +241,9 @@ export const CourseCard = ({ course }) => {
               <CoursePrice>${course.price}</CoursePrice>
             )}
           </div>
-          <CourseButton to={`/courses/${course.id}`}>Enroll Now</CourseButton>
+          <CourseButton to={`/courses/${course.id}`} onClick={handleEnroll}>
+            Enroll Now
+          </CourseButton>
         </CourseFooter>
       </CourseContent>
       

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import api from '../services/api';
 import { COURSES } from '../services/endpoints';
 
+
 const CoursesPage = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,37 +69,48 @@ const CoursesPage = () => {
   }
 
   return (
-    <Container>
-      <Header>
-        <Title>All Courses</Title>
-        <Description>Browse our comprehensive catalog of courses</Description>
-      </Header>
-      
-      {courses.length === 0 ? (
-        <EmptyState>
-          <EmptyIcon>📚</EmptyIcon>
-          <h3>No courses available yet</h3>
-          <p>Check back later for new courses</p>
-        </EmptyState>
-      ) : (
-        <CoursesGrid>
-          {courses.map(course => (
-            <CourseCard 
-              key={course.id} 
-              course={{
-                ...course,
-                // Map backend fields to component props
-                category: course.category?.name || 'Uncategorized',
-                rating: course.average_rating || 4.5,
-                reviews: course.review_count || 0,
-                students: course.enrollment_count || 0,
-                // Add any other necessary mappings
-              }} 
-            />
-          ))}
-        </CoursesGrid>
-      )}
-    </Container>
+
+    <>
+      <HeroSection>
+          <HeroTitle>All Courses</HeroTitle>
+          <HeroDescription>
+            Browse our comprehensive catalog of courses designed to boost your skills
+          </HeroDescription>
+      </HeroSection>
+      <Container>
+
+        <Header>
+          <Title>All Courses</Title>
+          <Description>Browse our comprehensive catalog of courses</Description>
+        </Header>
+          
+        {courses.length === 0 ? (
+          <EmptyState>
+            <EmptyIcon>📚</EmptyIcon>
+            <h3>No courses available yet</h3>
+            <p>Check back later for new courses</p>
+          </EmptyState>
+        ) : (
+          <CoursesGrid>
+            {courses.map(course => (
+              <CourseCard 
+                key={course.id} 
+                course={{
+                  ...course,
+                  // Map backend fields to component props
+                  category: course.category?.name || 'Uncategorized',
+                  rating: course.average_rating || 4.5,
+                  reviews: course.review_count || 0,
+                  students: course.enrollment_count || 0,
+                  // Add any other necessary mappings
+                }} 
+              />
+            ))}
+          </CoursesGrid>
+        )}
+      </Container>
+    </>
+    
   );
 };
 
@@ -107,6 +119,31 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1rem;
+`;
+
+const HeroSection = styled.section`
+  background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%);
+  color: white;
+  padding: 5rem 1rem;
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
+const HeroTitle = styled.h1`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+`;
+
+const HeroDescription = styled.p`
+  font-size: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const Header = styled.div`

@@ -85,7 +85,13 @@ const BrowseCourses = () => {
         {availableCourses.length > 0 ? (
           <CourseGrid>
             {availableCourses.map(course => (
-              <CourseCard key={course.id}>
+              <CourseCard key={course.id}
+                course={{
+                ...course,
+                instructor: course.instructor?.name || 'Unknown Instructor'
+              }}
+              onEnroll={handleEnrollCourse}/>
+                /*
                 <CourseImage />
                 <CourseContent>
                   <CourseTitle>{course.title}</CourseTitle>
@@ -107,7 +113,8 @@ const BrowseCourses = () => {
                     </Button>
                   </CourseMeta>
                 </CourseContent>
-              </CourseCard>
+              </CourseCard> 
+              */
             ))}
           </CourseGrid>
         ) : (
