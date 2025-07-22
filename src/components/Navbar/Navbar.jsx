@@ -66,23 +66,6 @@ const MobileIcon = styled.div`
   }
 `;
 
-// New component for mobile user profile
-const MobileUserProfile = styled.div`
-  display: none;
-  
-  @media screen and (max-width: 950px) {
-    display: flex;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    align-items: center;
-    gap: 0.5rem;
-    color: ${({ scrolled }) => (scrolled ? '#2b5876' : '#3182ce')};
-    z-index: 5;
-  }
-`;
-
 const NavMenu = styled.ul`
   display: flex;
   align-items: center;
@@ -213,6 +196,35 @@ const UserProfile = styled.div`
     color: ${({ scrolled }) => (scrolled ? '#4a5568' : '#63b3ed')};
     white-space: nowrap;
   }
+  
+  @media screen and (min-width: 951px) {
+    position: static;
+    transform: none;
+  }
+  
+  @media screen and (max-width: 950px) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    background: ${({ scrolled }) => (scrolled ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.7)')};
+    backdrop-filter: blur(5px);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    
+    .user-info {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .dashboard-text {
+      display: none;
+    }
+  }
 `;
 
 const WelcomeText = styled.span`
@@ -248,12 +260,20 @@ const Navbar = () => {
           <LogoImage src={Logo} alt="Edenites Academy Logo" scrolled={scrolled} />
         </NavLogo>
 
-        {/* Mobile User Profile - Centered */}
         {currentUser && (
-          <MobileUserProfile scrolled={scrolled}>
+          <UserProfile 
+            as={Link} 
+            to="/dashboard" 
+            scrolled={scrolled}
+          >
             <FaUserCircle size={24} />
-            <span>{currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}</span>
-          </MobileUserProfile>
+            <div className="user-info">
+              <span className="user-name">
+                {currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}
+              </span>
+              <span className="dashboard-text">Dashboard</span>
+            </div>
+          </UserProfile>
         )}
 
         <MobileIcon onClick={() => setIsOpen(!isOpen)} scrolled={scrolled}>
@@ -293,6 +313,7 @@ const Navbar = () => {
 
         {currentUser ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Desktop user profile is now hidden on mobile */}
             <Tooltip 
               label="Go to your dashboard" 
               placement="bottom" 
@@ -304,6 +325,7 @@ const Navbar = () => {
                 as={Link} 
                 to="/dashboard" 
                 scrolled={scrolled}
+                style={{ display: 'none' }}
               >
                 <FaUserCircle size={24} />
                 <div className="user-info">
@@ -361,4 +383,3 @@ const Navbar = () => {
   );
 };
 export default Navbar;
-
