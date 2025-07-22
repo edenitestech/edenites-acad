@@ -46,8 +46,6 @@ const NavLogo = styled(Link)`
   text-decoration: none;
 `;
 
-
-
 const LogoImage = styled.img`
   height: ${({ scrolled }) => (scrolled ? '40px' : '50px')};
   transition: all 0.3s ease;
@@ -65,6 +63,23 @@ const MobileIcon = styled.div`
     right: 2rem;
     top: 50%;
     transform: translateY(-50%);
+  }
+`;
+
+// New component for mobile user profile
+const MobileUserProfile = styled.div`
+  display: none;
+  
+  @media screen and (max-width: 950px) {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    gap: 0.5rem;
+    color: ${({ scrolled }) => (scrolled ? '#2b5876' : '#3182ce')};
+    z-index: 5;
   }
 `;
 
@@ -232,12 +247,18 @@ const Navbar = () => {
         <NavLogo to="/">
           <LogoImage src={Logo} alt="Edenites Academy Logo" scrolled={scrolled} />
         </NavLogo>
-        
+
+        {/* Mobile User Profile - Centered */}
+        {currentUser && (
+          <MobileUserProfile scrolled={scrolled}>
+            <FaUserCircle size={24} />
+            <span>{currentUser.firstName || currentUser.fullname?.split(' ')[0] || 'User'}</span>
+          </MobileUserProfile>
+        )}
 
         <MobileIcon onClick={() => setIsOpen(!isOpen)} scrolled={scrolled}>
           {isOpen ? <FaTimes /> : <FaBars />}
         </MobileIcon>
-
 
         <NavMenu>
           <li>
@@ -340,6 +361,4 @@ const Navbar = () => {
   );
 };
 export default Navbar;
-
-
 
