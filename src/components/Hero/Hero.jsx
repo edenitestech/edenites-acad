@@ -47,7 +47,10 @@ const Hero = () => {
     "Develop /Tech-Skills",
     "Explore /Fashion-Design",
     "Learn /Leather-Crafting",
-    "Grow /Your-Potential"
+    "Grow /Your-Potential",
+    "Maximize /Your-Opportunities",
+    "Choose /Your-Career",
+    "Nurture /the Talent in you"
   ];
 
   useEffect(() => {

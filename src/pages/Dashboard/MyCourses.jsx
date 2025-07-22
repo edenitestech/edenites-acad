@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
-import { ENROLLED_COURSES } from '../../services/endpoints';
+import { ENROLLED_COURSES, UNENROLL_COURSE } from '../../services/endpoints';
 import { Link } from 'react-router-dom';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaBook } from 'react-icons/fa';
 import {
   Section,
   SectionHeader,
@@ -17,20 +17,22 @@ import {
   Button,
   SkeletonCourseGrid,
   SkeletonCourseCard,
-  LoadingSpinnerContainer
 } from '../../styles/DashboardStyles';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { toast } from 'react-toastify';
 
 const MyCourses = () => {
   const { currentUser } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [removing, setRemoving] = useState({});
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        setLoading(true);
         const response = await api.get(ENROLLED_COURSES);
         setCourses(response.data.results || response.data);
       } catch (err) {
@@ -45,10 +47,21 @@ const MyCourses = () => {
 
   const handleRemoveCourse = async (courseId) => {
     try {
-      await api.delete(`/courses/${courseId}/unenroll/`);
+      setRemoving(prev => ({ ...prev, [courseId]: true }));
+      
+      // Use the UNENROLL_COURSE endpoint from services
+      await api.delete(UNENROLL_COURSE(courseId));
+      
+      // Update UI
       setCourses(prev => prev.filter(course => course.id !== courseId));
+      
+      toast.success('Course removed successfully!');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to unenroll from course');
+      console.error('Unenrollment error:', err);
+      setError(err.response?.data?.message || 'Failed to remove course');
+      toast.error('Failed to remove course. Please try again.');
+    } finally {
+      setRemoving(prev => ({ ...prev, [courseId]: false }));
     }
   };
 
@@ -88,12 +101,16 @@ const MyCourses = () => {
           <CourseGrid>
             {courses.map(course => (
               <CourseCard key={course.id}>
-                <CourseImage />
+                <CourseImage>
+                  <FaBook size={40} color="#3182ce" />
+                </CourseImage>
+                
                 <CourseContent>
                   <CourseTitle>{course.title}</CourseTitle>
-                  <p>Instructor: {course.instructor}</p>
+                  <p>Instructor: {course.instructor?.name || 'Unknown'}</p>
+                  
                   <div>
-                    <p>Progress: {course.progress}%</p>
+                    <p>Progress: {course.progress || 0}%</p>
                     <div style={{
                       height: '6px', 
                       background: '#e0e0e0', 
@@ -101,13 +118,14 @@ const MyCourses = () => {
                       margin: '10px 0'
                     }}>
                       <div style={{
-                        width: `${course.progress}%`,
+                        width: `${course.progress || 0}%`,
                         height: '100%',
                         background: '#48bb99',
                         borderRadius: '3px'
                       }}></div>
                     </div>
                   </div>
+                  
                   <CourseMeta>
                     <Button 
                       className="primary"
@@ -116,11 +134,19 @@ const MyCourses = () => {
                     >
                       Continue
                     </Button>
+                    
                     <Button 
                       className="danger"
+                      disabled={removing[course.id]}
                       onClick={() => handleRemoveCourse(course.id)}
                     >
-                      <FaTrash /> Remove
+                      {removing[course.id] ? (
+                        'Removing...'
+                      ) : (
+                        <>
+                          <FaTrash /> Remove
+                        </>
+                      )}
                     </Button>
                   </CourseMeta>
                 </CourseContent>
@@ -151,5 +177,4 @@ const MyCourses = () => {
     </div>
   );
 };
-
 export default MyCourses;

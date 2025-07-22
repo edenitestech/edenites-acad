@@ -238,6 +238,13 @@ const CharacterCount = styled.p`
   margin-top: 0.25rem;
 `;
 
+const SkeletonHero = styled.div`
+  height: 300px;
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  width: 100%;
+`;
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -271,167 +278,173 @@ const ContactPage = () => {
   return (
     <ContactSection>
       <Wave position="top" color="#2b5876" opacity="0.1" flip={false} />
-      
+
       <ContactContainer>
-        <ContactHero>
-          <HeroTitle>Contact Us</HeroTitle>
-          <HeroSubtitle>
-            Have questions or need assistance? Reach out to our team - we're here to help!
-          </HeroSubtitle>
-        </ContactHero>
-        
-        <ContactContent>
-          {loading ? (
-            // Skeleton loading for contact info
-            <ContactInfoCard>
-              <Skeleton height={40} width="60%" style={{ marginBottom: '2rem' }} />
-              {[...Array(3)].map((_, i) => (
-                <div key={i} style={{ display: 'flex', marginBottom: '1.5rem' }}>
-                  <Skeleton circle height={50} width={50} style={{ marginRight: '1rem' }} />
-                  <div style={{ flex: 1 }}>
-                    <Skeleton height={20} width="40%" style={{ marginBottom: '0.5rem' }} />
-                    <Skeleton height={16} width="80%" count={2} />
+        {loading ? (
+          <>
+            <SkeletonHero>
+              <Skeleton height="100%" width="100%" />
+            </SkeletonHero>
+            
+            <ContactContent>
+              <ContactInfoCard>
+                <Skeleton height={40} width="60%" style={{ marginBottom: '2rem' }} />
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} style={{ display: 'flex', marginBottom: '1.5rem' }}>
+                    <Skeleton circle height={50} width={50} style={{ marginRight: '1rem' }} />
+                    <div style={{ flex: 1 }}>
+                      <Skeleton height={20} width="40%" style={{ marginBottom: '0.5rem' }} />
+                      <Skeleton height={16} width="80%" count={2} />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </ContactInfoCard>
-          ) : (
-            <ContactInfoCard>
-              <SectionTitle color="blue">Get In Touch</SectionTitle>
-              
-              <InfoItem>
-                <InfoIcon color="blue">
-                  <FaEnvelope />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>Email</InfoLabel>
-                  <InfoText>hello@edenites.com</InfoText>
-                  <InfoText>support@edenites.com</InfoText>
-                </InfoContent>
-              </InfoItem>
-              
-              <InfoItem>
-                <InfoIcon color="blue">
-                  <FaPhone />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>Phone</InfoLabel>
-                  <InfoText>NG: +234 706 560 0205</InfoText>
-                  <InfoText>US: +1 252 404 2733</InfoText>
-                </InfoContent>
-              </InfoItem>
-              
-              <InfoItem>
-                <InfoIcon color="blue">
-                  <FaMapMarkerAlt />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>Address</InfoLabel>
-                  <InfoText>123 Education Street</InfoText>
-                  <InfoText>Learning City, Nigeria</InfoText>
-                </InfoContent>
-              </InfoItem>
-            </ContactInfoCard>
-          )}
-          
-          {loading ? (
-            // Skeleton loading for contact form
-            <ContactFormCard>
-              <Skeleton height={40} width="60%" style={{ marginBottom: '2rem' }} />
-              {[...Array(5)].map((_, i) => (
-                <div key={i} style={{ marginBottom: '1.5rem' }}>
-                  <Skeleton height={20} width="30%" style={{ marginBottom: '0.5rem' }} />
-                  <Skeleton height={40} />
-                </div>
-              ))}
-              <Skeleton height={50} width="100%" />
-            </ContactFormCard>
-          ) : (
-            <ContactFormCard>
-              <SectionTitle color="green">Send Us a Message</SectionTitle>
-              <form onSubmit={handleSubmit}>
-                <FormGroup>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormInput 
-                    type="text" 
-                    name="name" 
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </FormGroup>
+                ))}
+              </ContactInfoCard>
+
+              <ContactFormCard>
+                <Skeleton height={40} width="60%" style={{ marginBottom: '2rem' }} />
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} style={{ marginBottom: '1.5rem' }}>
+                    <Skeleton height={20} width="30%" style={{ marginBottom: '0.5rem' }} />
+                    <Skeleton height={40} />
+                  </div>
+                ))}
+                <Skeleton height={50} width="100%" />
+              </ContactFormCard>
+            </ContactContent>
+          </>
+        ) : (
+          <>
+            <ContactHero>
+              <HeroTitle>Contact Us</HeroTitle>
+              <HeroSubtitle>
+                Have questions or need assistance? Reach out to our team - we're here to help!
+              </HeroSubtitle>
+            </ContactHero>
+            
+            <ContactContent>
+              <ContactInfoCard>
+                <SectionTitle color="blue">Get In Touch</SectionTitle>
                 
-                <FormGroup>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormInput 
-                    type="email" 
-                    name="email" 
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email address"
-                    required
-                  />
-                </FormGroup>
+                <InfoItem>
+                  <InfoIcon color="blue">
+                    <FaEnvelope />
+                  </InfoIcon>
+                  <InfoContent>
+                    <InfoLabel>Email</InfoLabel>
+                    <InfoText>hello@edenites.com</InfoText>
+                    <InfoText>support@edenites.com</InfoText>
+                  </InfoContent>
+                </InfoItem>
                 
-                <FormGroup>
-                  <FormLabel>Subject</FormLabel>
-                  <FormInput 
-                    type="text" 
-                    name="subject" 
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder="What's this about?"
-                    required
-                  />
-                </FormGroup>
+                <InfoItem>
+                  <InfoIcon color="blue">
+                    <FaPhone />
+                  </InfoIcon>
+                  <InfoContent>
+                    <InfoLabel>Phone</InfoLabel>
+                    <InfoText>NG: +234 806 670 8343</InfoText>
+                    <InfoText>US: +1 252 404 2733</InfoText>
+                  </InfoContent>
+                </InfoItem>
                 
-                <FormGroup>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormInput 
-                    type="tel" 
-                    name="phone" 
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+234 (000) 000-0000"
-                  />
-                </FormGroup>
-                
-                <FormGroup>
-                  <FormLabel>Message</FormLabel>
-                  <FormTextarea 
-                    name="message" 
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="How can we help you?"
-                    maxLength="300"
-                    required
-                  />
-                  <CharacterCount count={formData.message.length}>
-                    {formData.message.length}/300 characters
-                  </CharacterCount>
-                </FormGroup>
-                
-                <PrivacyPolicy>
-                  <Checkbox 
-                    type="checkbox" 
-                    name="agree" 
-                    checked={formData.agree}
-                    onChange={handleChange}
-                    required
-                  />
-                  <PrivacyText>
-                    I agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>
-                  </PrivacyText>
-                </PrivacyPolicy>
-                
-                <SubmitButton type="submit">
-                  <FaPaperPlane /> Send Message
-                </SubmitButton>
-              </form>
-            </ContactFormCard>
-          )}
-        </ContactContent>
+                <InfoItem>
+                  <InfoIcon color="blue">
+                    <FaMapMarkerAlt />
+                  </InfoIcon>
+                  <InfoContent>
+                    <InfoLabel>Address</InfoLabel>
+                    <InfoText>123 Education Street</InfoText>
+                    <InfoText>Learning City, Nigeria</InfoText>
+                  </InfoContent>
+                </InfoItem>
+              </ContactInfoCard>
+
+              <ContactFormCard>
+                <SectionTitle color="green">Send Us a Message</SectionTitle>
+                <form onSubmit={handleSubmit}>
+                  <FormGroup>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormInput 
+                      type="text" 
+                      name="name" 
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </FormGroup>
+                  
+                  <FormGroup>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormInput 
+                      type="email" 
+                      name="email" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Enter your email address"
+                      required
+                    />
+                  </FormGroup>
+                  
+                  <FormGroup>
+                    <FormLabel>Subject</FormLabel>
+                    <FormInput 
+                      type="text" 
+                      name="subject" 
+                      value={formData.subject}
+                      onChange={handleChange}
+                      placeholder="What's this about?"
+                      required
+                    />
+                  </FormGroup>
+                  
+                  <FormGroup>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormInput 
+                      type="tel" 
+                      name="phone" 
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+234 (000) 000-0000"
+                    />
+                  </FormGroup>
+                  
+                  <FormGroup>
+                    <FormLabel>Message</FormLabel>
+                    <FormTextarea 
+                      name="message" 
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="How can we help you?"
+                      maxLength="300"
+                      required
+                    />
+                    <CharacterCount count={formData.message.length}>
+                      {formData.message.length}/300 characters
+                    </CharacterCount>
+                  </FormGroup>
+                  
+                  <PrivacyPolicy>
+                    <Checkbox 
+                      type="checkbox" 
+                      name="agree" 
+                      checked={formData.agree}
+                      onChange={handleChange}
+                      required
+                    />
+                    <PrivacyText>
+                      I agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>
+                    </PrivacyText>
+                  </PrivacyPolicy>
+                  
+                  <SubmitButton type="submit">
+                    <FaPaperPlane /> Send Message
+                  </SubmitButton>
+                </form>
+              </ContactFormCard>
+            </ContactContent>
+          </>
+        )}
       </ContactContainer>
       
       <Wave position="bottom" color="#2b5876" opacity="0.1" flip={true} />

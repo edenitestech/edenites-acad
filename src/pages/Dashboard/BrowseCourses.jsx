@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
-import { AVAILABLE_COURSES } from '../../services/endpoints';
+import { AVAILABLE_COURSES, ENROLLMENTS } from '../../services/endpoints';
 import { Link } from 'react-router-dom';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaBook } from 'react-icons/fa';
 import {
   Section,
   SectionHeader,
@@ -17,19 +17,22 @@ import {
   Button,
   SkeletonCourseGrid,
   SkeletonCourseCard,
-  LoadingSpinnerContainer
 } from '../../styles/DashboardStyles';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { toast } from 'react-toastify';
 
 const BrowseCourses = () => {
+  const { currentUser } = useAuth();
   const [availableCourses, setAvailableCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [enrolling, setEnrolling] = useState({});
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        setLoading(true);
         const response = await api.get(AVAILABLE_COURSES);
         setAvailableCourses(response.data.results || response.data);
       } catch (err) {
@@ -44,10 +47,28 @@ const BrowseCourses = () => {
 
   const handleEnrollCourse = async (courseId) => {
     try {
-      await api.post(`/courses/${courseId}/enroll/`);
-      // You might want to add a success message or refresh the list
+      setEnrolling(prev => ({ ...prev, [courseId]: true }));
+      
+      // Use the new enrollments endpoint
+      await api.post(ENROLLMENTS, { course: courseId });
+      
+      // Update UI
+      setAvailableCourses(prev => 
+        prev.map(course => 
+          course.id === courseId 
+            ? { ...course, isEnrolled: true } 
+            : course
+        )
+      );
+      
+      toast.success('Successfully enrolled in course!');
     } catch (err) {
+      // Error handling
+      console.error('Enrollment error:', err);
       setError(err.response?.data?.message || 'Failed to enroll in course');
+      toast.error('Enrollment failed. Please try again.');
+    } finally {
+      setEnrolling(prev => ({ ...prev, [courseId]: false }));
     }
   };
 
@@ -85,25 +106,34 @@ const BrowseCourses = () => {
         {availableCourses.length > 0 ? (
           <CourseGrid>
             {availableCourses.map(course => (
-              <CourseCard key={course.id}
-                course={{
-                ...course,
-                instructor: course.instructor?.name || 'Unknown Instructor'
-              }}
-              onEnroll={handleEnrollCourse}/>
-                /*
-                <CourseImage />
+              <CourseCard key={course.id}>
+                {/* Placeholder for course image - replace with actual image if available */}
+                <CourseImage>
+                  <FaBook size={40} color="#4CAF50" />
+                </CourseImage>
+                
                 <CourseContent>
                   <CourseTitle>{course.title}</CourseTitle>
-                  <p>Instructor: {course.instructor}</p>
-                  <p>Price: ${course.price}</p>
+                  <p>Instructor: {course.instructor?.name || 'Unknown'}</p>
+                  <p>Price: ₦{course.price?.toLocaleString() || 'Free'}</p>
+                  
                   <CourseMeta>
                     <Button 
-                      className="primary"
-                      onClick={() => handleEnrollCourse(course.id)}
+                      className={course.isEnrolled ? "success" : "primary"}
+                      disabled={enrolling[course.id] || course.isEnrolled}
+                      onClick={() => !course.isEnrolled && handleEnrollCourse(course.id)}
                     >
-                      <FaPlus /> Enroll Now
+                      {enrolling[course.id] ? (
+                        'Enrolling...'
+                      ) : course.isEnrolled ? (
+                        'Enrolled ✓'
+                      ) : (
+                        <>
+                          <FaPlus /> Enroll Now
+                        </>
+                      )}
                     </Button>
+                    
                     <Button 
                       className="outline"
                       as={Link}
@@ -113,12 +143,19 @@ const BrowseCourses = () => {
                     </Button>
                   </CourseMeta>
                 </CourseContent>
-              </CourseCard> 
-              */
+              </CourseCard>
             ))}
           </CourseGrid>
         ) : (
-          <p>No available courses at the moment.</p>
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>No courses available at the moment.</p>
+            <Button 
+              className="primary"
+              onClick={() => window.location.reload()}
+            >
+              Refresh
+            </Button>
+          </div>
         )}
       </Section>
       
@@ -132,5 +169,4 @@ const BrowseCourses = () => {
     </div>
   );
 };
-
 export default BrowseCourses;

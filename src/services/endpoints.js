@@ -15,6 +15,7 @@ export const AVAILABLE_COURSES = '/courses/available/';
 export const ENROLL_COURSE = (courseId) => `/courses/${courseId}/enroll/`;
 export const UNENROLL_COURSE = (courseId) => `/courses/${courseId}/unenroll/`;
 export const COURSE_DETAIL = (courseId) => `/courses/${courseId}/`;
+export const ENROLLMENTS = '/enrollments/';
 
 // Past Questions
 export const EXAM_TYPES = '/exams/past-questions/types/';

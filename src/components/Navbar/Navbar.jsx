@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { Tooltip } from '@chakra-ui/react';
 import { useAuth } from '../../contexts/AuthContext';
+import ExploreDropdown from '../ExploreDropdown/ExploreDropdown';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from '../../assets/images/eden-acada logo.png';
@@ -240,9 +241,7 @@ const Navbar = () => {
 
         <NavMenu>
           <li>
-            <NavLink to="/" scrolled={scrolled} $isActive={location.pathname === '/'}>
-              Explore
-            </NavLink>
+            <ExploreDropdown scrolled={scrolled} />
           </li>
           <li>
             <NavLink to="/courses" scrolled={scrolled} $isActive={location.pathname.startsWith('/courses')}>
@@ -308,7 +307,7 @@ const Navbar = () => {
       </NavContainer>
 
       <MobileMenu isOpen={isOpen}>
-        <NavLink to="/" onClick={() => setIsOpen(false)} scrolled={true}>Explore</NavLink>
+        <li> <ExploreDropdown mobile scrolled={scrolled} /></li>
         <NavLink to="/courses" onClick={() => setIsOpen(false)} scrolled={true}>Courses</NavLink>
         <NavLink to="/about" onClick={() => setIsOpen(false)} scrolled={true}>About</NavLink>
         <NavLink to="/contact" onClick={() => setIsOpen(false)} scrolled={true}>Contact</NavLink>
@@ -341,3 +340,6 @@ const Navbar = () => {
   );
 };
 export default Navbar;
+
+
+
