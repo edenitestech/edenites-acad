@@ -1,13 +1,10 @@
 // src/components/Layout/DashboardLayout.jsx
 import { Outlet, useLocation, Link } from 'react-router-dom';
+import DashboardNavbar from '../Dashboard/DashboardNavbar';
+import DashboardFooter from '../Dashboard/DashboardFooter'; 
 import styled from 'styled-components';
 import { 
-  FaChartLine, 
-  FaBook, 
-  FaSearch, 
-  FaCog, 
-  FaUserCircle,
-  FaSignOutAlt
+  FaChartLine, FaBook, FaCog, FaSearch, FaSignOutAlt 
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState, useEffect } from 'react';
@@ -15,27 +12,35 @@ import { useState, useEffect } from 'react';
 // Styled Components
 const DashboardContainer = styled.div`
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background-color: #f5f7fa;
 `;
 
-const Sidebar = styled.aside`
+const DashboardContent = styled.div`
+  display: flex;
+  flex: 1;
+`;
+
+const SidebarContainer = styled.aside`
   width: 280px;
   background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
   color: white;
   padding: 1.5rem 1rem;
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: 70px; // Adjusted to account for navbar height
+  height: calc(100vh - 70px);
   overflow-y: auto;
   
   @media (max-width: 768px) {
-    width: 80px;
-    padding: 1rem 0.5rem;
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
   }
 `;
 
-const MainContent = styled.main`
+const MainContent = styled.div`
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
@@ -63,37 +68,18 @@ const Avatar = styled.div`
   font-weight: bold;
   font-size: 2rem;
   margin: 0 auto 1rem;
-  
-  @media (max-width: 768px) {
-    width: 50px;
-    height: 50px;
-    font-size: 1.25rem;
-  }
 `;
 
 const UserName = styled.div`
-  font-size: 1.25rem;
   font-weight: 600;
+  color: white;
   margin-bottom: 0.25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+  font-size: 1.1rem;
 `;
 
 const UserEmail = styled.div`
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #a0aec0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
 `;
 
 const NavItem = styled(Link)`
@@ -179,51 +165,55 @@ const DashboardLayout = () => {
 
   return (
     <DashboardContainer>
-      <Sidebar>
-        <UserProfile>
-          <Avatar>{initials}</Avatar>
-          <UserName>
-            {currentUser?.firstName} {currentUser?.lastName}
-          </UserName>
-          <UserEmail>{currentUser?.email}</UserEmail>
-        </UserProfile>
-        
-        <NavItem 
-          to="/dashboard"
-          className={activeTab === 'dashboard' ? 'active' : ''}
-        >
-          <FaChartLine /> <span>Dashboard</span>
-        </NavItem>
-        
-        <NavItem 
-          to="/dashboard/courses"
-          className={activeTab === 'my-courses' ? 'active' : ''}
-        >
-          <FaBook /> <span>My Courses</span>
-        </NavItem>
-        
-        <NavItem 
-          to="/dashboard/browse"
-          className={activeTab === 'browse' ? 'active' : ''}
-        >
-          <FaSearch /> <span>Browse Courses</span>
-        </NavItem>
-        
-        <NavItem 
-          to="/dashboard/account"
-          className={activeTab === 'account' ? 'active' : ''}
-        >
-          <FaCog /> <span>Account Settings</span>
-        </NavItem>
-        
-        <LogoutButton onClick={logout}>
-          <FaSignOutAlt /> <span>Logout</span>
-        </LogoutButton>
-      </Sidebar>
-      
-      <MainContent>
-        <Outlet />
-      </MainContent>
+      <DashboardNavbar />
+      <DashboardContent>
+        <SidebarContainer>
+          <UserProfile>
+            <Avatar>{initials}</Avatar>
+            <UserName>
+              {currentUser?.firstName} {currentUser?.lastName}
+            </UserName>
+            <UserEmail>{currentUser?.email}</UserEmail>
+          </UserProfile>
+          
+          <NavItem 
+            to="/dashboard"
+            className={activeTab === 'dashboard' ? 'active' : ''}
+          >
+            <FaChartLine /> <span>Dashboard</span>
+          </NavItem>
+          
+          <NavItem 
+            to="/dashboard/courses"
+            className={activeTab === 'my-courses' ? 'active' : ''}
+          >
+            <FaBook /> <span>My Courses</span>
+          </NavItem>
+          
+          <NavItem 
+            to="/dashboard/browse"
+            className={activeTab === 'browse' ? 'active' : ''}
+          >
+            <FaSearch /> <span>Browse Courses</span>
+          </NavItem>
+          
+          <NavItem 
+            to="/dashboard/account"
+            className={activeTab === 'account' ? 'active' : ''}
+          >
+            <FaCog /> <span>Account Settings</span>
+          </NavItem>
+          
+          <LogoutButton onClick={logout}>
+            <FaSignOutAlt /> <span>Logout</span>
+          </LogoutButton>
+        </SidebarContainer>
+
+        <MainContent>
+          <Outlet />
+        </MainContent>
+      </DashboardContent>
+      <DashboardFooter />
     </DashboardContainer>
   );
 };
