@@ -1,6 +1,10 @@
-import { FaStar, FaUserAlt, FaPlayCircle } from 'react-icons/fa';
+import { FaStar, FaUserAlt, FaPlayCircle, FaCheck } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
+import PropTypes from 'prop-types';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
+import { useAuth } from '../../contexts/AuthContext'; 
 
 // Styled components
 const shimmer = keyframes`
@@ -31,7 +35,6 @@ export const CourseImage = styled.div`
   align-items: center;
 `;
 
-
 export const PlayButton = styled.div`
   color: white;
   opacity: 0.8;
@@ -57,6 +60,21 @@ export const CourseBadge = styled.span`
   border-radius: 20px;
   font-size: 0.7rem;
   font-weight: 600;
+`;
+
+export const EnrolledBadge = styled.span`
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #48bb78;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `;
 
 export const CourseContent = styled.div`
@@ -134,8 +152,11 @@ export const CourseOriginalPrice = styled.span`
   color: #718096;
 `;
 
-export const CourseButton = styled(Link)`
-  background: linear-gradient(to right, #4CAF50 0%, #2b5876 100%);
+export const CourseButton = styled.button`
+  background: ${props => 
+    props.$isEnrolled ? '#48bb78' : 
+    props.$isLoading ? '#a0aec0' : 
+    'linear-gradient(to right, #4CAF50 0%, #2b5876 100%)'};
   color: white;
   border: none;
   padding: 8px 16px;
@@ -144,12 +165,14 @@ export const CourseButton = styled(Link)`
   transition: all 0.3s ease;
   text-decoration: none;
   font-size: 0.9rem;
+  cursor: ${props => props.$isLoading ? 'not-allowed' : 'pointer'};
+  display: flex;
+  align-items: center;
+  gap: 5px;
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(43, 88, 118, 0.3);
-    cursor: pointer;
-    color: white;
+    transform: ${props => props.$isLoading ? 'none' : 'translateY(-2px)'};
+    box-shadow: ${props => props.$isLoading ? 'none' : '0 5px 15px rgba(43, 88, 118, 0.3)'};
   }
 `;
 
@@ -173,36 +196,54 @@ export const CourseShimmer = styled.div`
   }
 `;
 
-// Additional styled components for course sections
-export const CourseSection = styled.section`
-  padding: 4rem 2rem;
-  background: #f9f9ff;
-`;
+const CourseCard = ({ 
+  course, 
+  onEnroll, 
+  isLoading = false, 
+  isEnrolled = false 
+  }) => {
+  const [localLoading, setLocalLoading] = useState(false);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
-export const SectionTitle = styled.h2`
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
-  color: #2d3748;
-`;
-
-export const CoursesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-// CourseCard component
-  
-export const CourseCard = ({ course, onEnroll }) => {
-  const handleEnroll = (e) => {
+  const handleEnroll = async (e) => {
     e.preventDefault();
-    if (onEnroll) {
-      onEnroll(course.id);
+    e.stopPropagation();
+    
+    if (isLoading || isEnrolled) return;
+    
+    // If user is not logged in, redirect to login
+    if (!currentUser) {
+      navigate('/login', { state: { from: `/courses/${course.id}` } });
+      return;
+    }
+
+    setLocalLoading(true);
+    
+    try {
+      // Call the onEnroll prop if provided
+      if (onEnroll) {
+        await onEnroll(course.id);
+      } else {
+        // Default enrollment logic if no onEnroll prop provided
+        // Here you would typically call your API
+        console.log('Enrolling in course:', course.id);
+        // Example API call:
+        // const response = await api.enrollCourse(course.id);
+        // Handle response...
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    } catch (error) {
+      console.error('Enrollment failed:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setLocalLoading(false);
     }
   };
+
+
   return (
     <CourseCardContainer data-aos="fade-up">
       <CourseImage>
@@ -210,23 +251,28 @@ export const CourseCard = ({ course, onEnroll }) => {
           <FaPlayCircle size={40} />
         </PlayButton>
         {course.isBestseller && <CourseBadge>Bestseller</CourseBadge>}
+        {isEnrolled && (
+          <EnrolledBadge>
+            <FaCheck /> Enrolled
+          </EnrolledBadge>
+        )}
       </CourseImage>
       
       <CourseContent>
-        <CourseCategory>{course.category}</CourseCategory>
+        <CourseCategory>{course.category || 'Uncategorized'}</CourseCategory>
         <CourseTitle>{course.title}</CourseTitle>
         <CourseDescription>{course.description}</CourseDescription>
         
         <CourseMeta>
           <CourseRating>
             <FaStar color="#f6b01e" />
-            <span>{course.rating}</span>
-            <CourseReviews>({course.reviews} reviews)</CourseReviews>
+            <span>{course.rating || 0}</span>
+            <CourseReviews>({course.reviews || 0} reviews)</CourseReviews>
           </CourseRating>
           
           <CourseStudents>
             <FaUserAlt size={12} />
-            <span>{course.students} students</span>
+            <span>{course.students || 0} students</span>
           </CourseStudents>
         </CourseMeta>
         
@@ -234,16 +280,29 @@ export const CourseCard = ({ course, onEnroll }) => {
           <div>
             {course.originalPrice ? (
               <>
-                <CourseOriginalPrice>${course.originalPrice}</CourseOriginalPrice>
-                <CoursePrice>${course.price}</CoursePrice>
+                <CourseOriginalPrice> ₦ {course.originalPrice}</CourseOriginalPrice>
+                <CoursePrice> ₦{course.price} </CoursePrice>
               </>
             ) : (
-              <CoursePrice>${course.price}</CoursePrice>
+              <CoursePrice>{course.price > 0 ? `₦${course.price}` : 'Free'}</CoursePrice>
             )}
           </div>
-          <CourseButton to={`/courses/${course.id}`} onClick={handleEnroll}>
-            Enroll Now
-          </CourseButton>
+          <CourseButton
+          onClick={handleEnroll}
+          $isLoading={isLoading || localLoading}
+          $isEnrolled={isEnrolled}
+          disabled={isLoading || isEnrolled || localLoading}
+        >
+          {isLoading || localLoading ? (
+            'Processing...'
+          ) : isEnrolled ? (
+            <>
+              <FaCheck /> Enrolled
+            </>
+          ) : (
+            'Enroll Now'
+          )}
+        </CourseButton>
         </CourseFooter>
       </CourseContent>
       
@@ -251,3 +310,29 @@ export const CourseCard = ({ course, onEnroll }) => {
     </CourseCardContainer>
   );
 };
+
+CourseCard.propTypes = {
+  course: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    category: PropTypes.string,
+    rating: PropTypes.number,
+    reviews: PropTypes.number,
+    students: PropTypes.number,
+    price: PropTypes.number,
+    originalPrice: PropTypes.number,
+    isBestseller: PropTypes.bool,
+  }).isRequired,
+  onEnroll: PropTypes.func,
+  isLoading: PropTypes.bool,
+  isEnrolled: PropTypes.bool,
+};
+
+CourseCard.defaultProps = {
+  onEnroll: () => {},
+  isLoading: false,
+  isEnrolled: false,
+};
+
+export default CourseCard;

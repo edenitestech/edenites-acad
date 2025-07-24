@@ -1,10 +1,9 @@
-// src/pages/Dashboard/BrowseCourses.jsx
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import { AVAILABLE_COURSES, ENROLLMENTS } from '../../services/endpoints';
 import { Link } from 'react-router-dom';
-import { FaPlus, FaBook } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import {
   Section,
   SectionHeader,
@@ -34,8 +33,20 @@ const BrowseCourses = () => {
       try {
         setLoading(true);
         const response = await api.get(AVAILABLE_COURSES);
-        setAvailableCourses(response.data.results || response.data);
+        
+        // Handle different response structures
+        let coursesData = response.data;
+        if (response.data.results) {
+          coursesData = response.data.results;
+        } else if (Array.isArray(response.data)) {
+          coursesData = response.data;
+        } else {
+          throw new Error('Invalid course data format');
+        }
+        
+        setAvailableCourses(coursesData);
       } catch (err) {
+        console.error('Course fetch error:', err);
         setError(err.response?.data?.message || 'Failed to load courses');
       } finally {
         setLoading(false);
@@ -46,6 +57,11 @@ const BrowseCourses = () => {
   }, []);
 
   const handleEnrollCourse = async (courseId) => {
+    if (!currentUser) {
+      toast.error('Please login to enroll in courses');
+      return;
+    }
+
     try {
       setEnrolling(prev => ({ ...prev, [courseId]: true }));
       
@@ -54,19 +70,25 @@ const BrowseCourses = () => {
       
       // Update UI
       setAvailableCourses(prev => 
-        prev.map(course => 
-          course.id === courseId 
-            ? { ...course, isEnrolled: true } 
-            : course
-        )
+        prev.map(course => {
+          if (course.id === courseId) {
+            return { ...course, isEnrolled: true };
+          }
+          return course;
+        })
       );
       
       toast.success('Successfully enrolled in course!');
+      
+      // Refresh enrolled courses in MyCourses
+      if (window.refreshEnrolledCourses) {
+        window.refreshEnrolledCourses();
+      }
     } catch (err) {
-      // Error handling
       console.error('Enrollment error:', err);
-      setError(err.response?.data?.message || 'Failed to enroll in course');
-      toast.error('Enrollment failed. Please try again.');
+      const errorMsg = err.response?.data?.message || 'Failed to enroll in course';
+      setError(errorMsg);
+      toast.error(`Enrollment failed: ${errorMsg}`);
     } finally {
       setEnrolling(prev => ({ ...prev, [courseId]: false }));
     }
@@ -106,44 +128,19 @@ const BrowseCourses = () => {
         {availableCourses.length > 0 ? (
           <CourseGrid>
             {availableCourses.map(course => (
-              <CourseCard key={course.id}>
-                {/* Placeholder for course image - replace with actual image if available */}
-                <CourseImage>
-                  <FaBook size={40} color="#4CAF50" />
-                </CourseImage>
-                
-                <CourseContent>
-                  <CourseTitle>{course.title}</CourseTitle>
-                  <p>Instructor: {course.instructor?.name || 'Unknown'}</p>
-                  <p>Price: ₦{course.price?.toLocaleString() || 'Free'}</p>
-                  
-                  <CourseMeta>
-                    <Button 
-                      className={course.isEnrolled ? "success" : "primary"}
-                      disabled={enrolling[course.id] || course.isEnrolled}
-                      onClick={() => !course.isEnrolled && handleEnrollCourse(course.id)}
-                    >
-                      {enrolling[course.id] ? (
-                        'Enrolling...'
-                      ) : course.isEnrolled ? (
-                        'Enrolled ✓'
-                      ) : (
-                        <>
-                          <FaPlus /> Enroll Now
-                        </>
-                      )}
-                    </Button>
-                    
-                    <Button 
-                      className="outline"
-                      as={Link}
-                      to={`/courses/${course.id}`}
-                    >
-                      View Details
-                    </Button>
-                  </CourseMeta>
-                </CourseContent>
-              </CourseCard>
+              <CourseCard 
+                key={course.id}
+                course={{
+                  ...course,
+                  category: course.category?.name || 'Uncategorized',
+                  rating: course.average_rating || 4.5,
+                  reviews: course.review_count || 0,
+                  students: course.enrollment_count || 0,
+                }}
+                onEnroll={handleEnrollCourse}
+                isLoading={enrolling[course.id] || false}
+                isEnrolled={course.isEnrolled || false}
+              />
             ))}
           </CourseGrid>
         ) : (

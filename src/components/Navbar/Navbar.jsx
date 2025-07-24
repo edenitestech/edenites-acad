@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { Tooltip } from '@chakra-ui/react';
 import { useAuth } from '../../contexts/AuthContext';
 import ExploreDropdown from '../ExploreDropdown/ExploreDropdown';
@@ -239,6 +241,12 @@ const Navbar = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -257,7 +265,11 @@ const Navbar = () => {
     <Nav scrolled={scrolled}>
       <NavContainer>
         <NavLogo to="/">
-          <LogoImage src={Logo} alt="Edenites Academy Logo" scrolled={scrolled} />
+          {loading ? (
+            <Skeleton width={scrolled ? 120 : 150} height={scrolled ? 40 : 50} />
+          ) : (
+            <LogoImage src={Logo} alt="Edenites Academy Logo" scrolled={scrolled} />
+          )}
         </NavLogo>
 
         {currentUser && (

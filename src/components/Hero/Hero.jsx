@@ -3,7 +3,7 @@ import {
   Box, Flex, Heading, Text, Input, Button, 
   IconButton, Image, useBreakpointValue, 
   useDisclosure, InputGroup, InputRightElement,
-  Skeleton, Fade
+  Skeleton, Fade, SkeletonText, SkeletonCircle
 } from '@chakra-ui/react';
 import { FaSearch, FaArrowRight } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
@@ -25,6 +25,7 @@ const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isHeroLoading, setIsHeroLoading] = useState(true); // New state for hero loading
   const isMobile = useBreakpointValue({ base: true, md: false });
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -54,11 +55,18 @@ const Hero = () => {
   ];
 
   useEffect(() => {
+    // Simulate hero loading
+    const timer = setTimeout(() => setIsHeroLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
 
   // Add a ref for the search container
   const searchContainerRef = useRef(null);
@@ -100,6 +108,60 @@ const Hero = () => {
     setSearchResults([]);
     onClose();
   };
+
+  if (isHeroLoading) {
+    return (
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        align="center"
+        justify="space-between"
+        minH={{ base: "auto", md: "85vh" }}
+        bg="white"
+        color="gray.800"
+        px={{ base: 4, md: 8, lg: 16 }}
+        pt={{ base: "24", md: "28" }}
+        pb={{ base: 12, md: 16 }}
+      >
+        {/* Left content skeleton */}
+        <Flex
+          direction="column"
+          maxW={{ base: "100%", md: "50%" }}
+          zIndex={2}
+          align={{ base: "center", md: "flex-start" }}
+          textAlign={{ base: "center", md: "left" }}
+        >
+          <SkeletonText
+            noOfLines={2}
+            spacing="4"
+            skeletonHeight="8"
+            width={{ base: "100%", md: "80%" }}
+            mb={6}
+          />
+          <SkeletonText
+            noOfLines={3}
+            spacing="3"
+            skeletonHeight="3"
+            width={{ base: "100%", md: "90%" }}
+            mb={8}
+          />
+          
+          {/* Search box skeleton */}
+          <Skeleton height="56px" width="100%" maxW="500px" mb={8} />
+          
+          {/* Button skeleton */}
+          <Skeleton height="56px" width="200px" />
+        </Flex>
+        
+        {/* Right image skeleton */}
+        <Skeleton
+          w={{ base: "100%", md: "45%" }}
+          h={{ base: "280px", md: "380px", lg: "480px" }}
+          mt={{ base: 8, md: 0 }}
+          borderRadius="xl"
+        />
+      </Flex>
+    );
+  }
 
   return (
     <Flex

@@ -1,4 +1,3 @@
-// src/pages/Dashboard/MyCourses.jsx
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
@@ -28,6 +27,7 @@ const MyCourses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [removing, setRemoving] = useState({});
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -43,6 +43,17 @@ const MyCourses = () => {
     };
     
     fetchCourses();
+  }, [refreshTrigger]);
+
+  // Create a global function to refresh courses
+  useEffect(() => {
+    window.refreshEnrolledCourses = () => {
+      setRefreshTrigger(prev => prev + 1);
+    };
+    
+    return () => {
+      delete window.refreshEnrolledCourses;
+    };
   }, []);
 
   const handleRemoveCourse = async (courseId) => {
@@ -100,7 +111,16 @@ const MyCourses = () => {
         {courses.length > 0 ? (
           <CourseGrid>
             {courses.map(course => (
-              <CourseCard key={course.id}>
+              <CourseCard 
+                key={course.id}
+                course={{
+                  ...course,
+                  category: course.category?.name || 'Uncategorized',
+                  rating: course.average_rating || 4.5,
+                  reviews: course.review_count || 0,
+                  students: course.enrollment_count || 0,
+                }}
+              >
                 <CourseImage>
                   <FaBook size={40} color="#3182ce" />
                 </CourseImage>

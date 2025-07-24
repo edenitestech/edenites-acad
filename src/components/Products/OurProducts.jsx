@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FaLaptopCode, FaTshirt, FaTools, FaBook } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const OurProducts = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const products = [
     {
@@ -36,6 +44,30 @@ const OurProducts = () => {
   const handleCardClick = (path) => {
     navigate(path);
   };
+
+  if (loading) {
+    return (
+      <Section>
+        <WaveTop>
+          {/* Keep the same wave SVG */}
+        </WaveTop>
+        
+        <Container>
+          <Skeleton height={50} width={300} style={{ margin: '0 auto 2rem' }} />
+          
+          <SkeletonGrid>
+            {[...Array(4)].map((_, i) => (
+              <SkeletonCard key={i}>
+                <Skeleton height={60} width={60} circle style={{ margin: '0 auto 1.5rem' }} />
+                <Skeleton height={30} width="70%" style={{ margin: '0 auto 1rem' }} />
+                <Skeleton count={3} height={15} style={{ marginBottom: '0.5rem' }} />
+              </SkeletonCard>
+            ))}
+          </SkeletonGrid>
+        </Container>
+      </Section>
+    );
+  }
 
   return (
     <Section>
@@ -76,6 +108,14 @@ const Section = styled.section`
   position: relative;
 `;
 
+const SkeletonCard = styled.div`
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  text-align: center;
+`;
+
 const WaveTop = styled.div`
   position: absolute;
   top: -1px;
@@ -112,6 +152,20 @@ const Title = styled.h2`
 `;
 
 const ProductsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
+  gap: 1.4rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const SkeletonGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
   gap: 1.4rem;

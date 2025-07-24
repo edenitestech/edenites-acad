@@ -1,4 +1,3 @@
-// ========== WAECPrepPage.jsx ==========
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -11,6 +10,7 @@ const heroImages = [
   'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3',
   'https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3'
 ];
+
 
 const fadeIn = keyframes`
   from {
@@ -82,40 +82,6 @@ const Container = styled.div`
   padding: 2rem;
 `;
 
-/*
-const Hero = styled.section`
-  padding: 2rem 1rem;
-  margin-bottom: 1rem;
-  text-align: center;
-
-  h1 {
-    font-size: 3rem;
-    color: var(--head-color);
-    margin-bottom: 1rem;
-    font-style: italic;
-
-    @media (max-width: 768px) {
-      font-size: 2rem;
-    }
-
-    @media (max-width: 480px) {
-      font-size: 1.4rem;
-    }
-  }
-
-  p {
-    font-size: 1.2rem;
-    color: var(--font-secondary);
-    max-width: 700px;
-    margin: 0 auto;
-
-    @media (max-width: 480px) {
-      font-size: 0.85rem;
-    }
-  }
-`;
-*/
-
 const SearchBar = styled.input`
   width: 100%;
   max-width: 500px;
@@ -180,6 +146,7 @@ const StartButton = styled(Link)`
   padding: 0.6rem 1.2rem;
   border-radius: 4px;
   font-weight: 600;
+  text-decoration: none;
   transition: 0.3s;
   cursor: pointer;
   margin-top: 1rem;
@@ -191,56 +158,52 @@ const StartButton = styled(Link)`
   }
 `;
 
-const WAECPage = () => {
+const NECOPrepPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  
   const [subjects] = useState([
-    { name: 'English Language', topics: 35, category: 'core' },
-    { name: 'Mathematics', topics: 31, category: 'core' },
-    { name: 'Civic Education', topics: 20, category: 'core' },
-    { name: 'Yoruba', topics: 18, category: 'language' },
-    { name: 'Igbo', topics: 18, category: 'language' },
-    { name: 'Hausa', topics: 18, category: 'language' },
-
-    { name: 'Physics', topics: 29, category: 'science' },
-    { name: 'Chemistry', topics: 27, category: 'science' },
-    { name: 'Biology', topics: 37, category: 'science' },
-    { name: 'Agricultural Science', topics: 25, category: 'science' },
-    { name: 'Further Mathematics', topics: 30, category: 'science' },
-    { name: 'Technical Drawing', topics: 22, category: 'science' },
-    { name: 'Computer Studies', topics: 20, category: 'science' },
-    { name: 'Health Education', topics: 18, category: 'science' },
-
-    { name: 'Literature in English', topics: 23, category: 'arts' },
-    { name: 'Government', topics: 26, category: 'arts' },
-    { name: 'History', topics: 19, category: 'arts' },
-    { name: 'CRS', topics: 21, category: 'arts' },
-    { name: 'IRS', topics: 21, category: 'arts' },
-    { name: 'Economics', topics: 26, category: 'arts' },
-    { name: 'Social Studies', topics: 17, category: 'arts' },
-    { name: 'French', topics: 15, category: 'arts' },
-    { name: 'Visual Arts', topics: 16, category: 'arts' },
-    { name: 'Music', topics: 14, category: 'arts' },
-
-    { name: 'Financial Accounting', topics: 24, category: 'commercial' },
-    { name: 'Commerce', topics: 22, category: 'commercial' },
-    { name: 'Business Management', topics: 20, category: 'commercial' },
-    { name: 'Office Practice', topics: 18, category: 'commercial' },
-    { name: 'Marketing', topics: 17, category: 'commercial' },
-
-    { name: 'Food and Nutrition', topics: 19, category: 'vocational' },
-    { name: 'Home Management', topics: 18, category: 'vocational' },
-    { name: 'Clothing and Textiles', topics: 16, category: 'vocational' },
-    { name: 'Animal Husbandry', topics: 20, category: 'vocational' },
-    { name: 'Fisheries', topics: 16, category: 'vocational' },
-    { name: 'Catering Craft Practice', topics: 21, category: 'vocational' },
-    { name: 'Data Processing', topics: 19, category: 'vocational' },
-    { name: 'Tourism', topics: 15, category: 'vocational' },
-    { name: 'Photography', topics: 14, category: 'vocational' },
-    { name: 'Garment Making', topics: 17, category: 'vocational' },
-    { name: 'Dyeing and Bleaching', topics: 13, category: 'vocational' }
+    { name: 'Mathematics', topics: 31 },
+    { name: 'English Language', topics: 35 },
+    { name: 'Civic Education', topics: 20 },
+    { name: 'Physics', topics: 29 },
+    { name: 'Chemistry', topics: 27 },
+    { name: 'Biology', topics: 37 },
+    { name: 'Agricultural Science', topics: 24 },
+    { name: 'Further Mathematics', topics: 22 },
+    { name: 'Health Science', topics: 18 },
+    { name: 'Technical Drawing', topics: 16 },
+    { name: 'Computer Studies', topics: 20 },
+    { name: 'Economics', topics: 26 },
+    { name: 'Commerce', topics: 21 },
+    { name: 'Financial Accounting', topics: 23 },
+    { name: 'Marketing', topics: 17 },
+    { name: 'Office Practice', topics: 15 },
+    { name: 'Business Methods', topics: 14 },
+    { name: 'Bookkeeping', topics: 12 },
+    { name: 'Government', topics: 26 },
+    { name: 'Literature-in-English', topics: 23 },
+    { name: 'Christian Religious Studies', topics: 19 },
+    { name: 'Islamic Religious Studies', topics: 18 },
+    { name: 'History', topics: 16 },
+    { name: 'Visual Arts', topics: 14 },
+    { name: 'Music', topics: 13 },
+    { name: 'French', topics: 14 },
+    { name: 'Yoruba', topics: 17 },
+    { name: 'Igbo', topics: 17 },
+    { name: 'Hausa', topics: 17 },
+    { name: 'Catering Craft Practice', topics: 18 },
+    { name: 'Data Processing', topics: 20 },
+    { name: 'Animal Husbandry', topics: 16 },
+    { name: 'Garment Making', topics: 14 },
+    { name: 'GSM Phone Maintenance', topics: 12 },
   ]);
+
+  const filteredSubjects = subjects.filter(subject =>
+    subject.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     // Rotate hero images
@@ -257,11 +220,6 @@ const WAECPage = () => {
     };
   }, []);
 
-  const filteredSubjects = subjects.filter(subject =>
-    subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    subject.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   if (loading) {
     return (
       <Container>
@@ -277,8 +235,7 @@ const WAECPage = () => {
             <div key={i} style={{ background: 'white', padding: '2rem', borderRadius: '8px' }}>
               <Skeleton height={30} width="70%" style={{ marginBottom: '1rem' }} />
               <Skeleton height={20} width="40%" style={{ marginBottom: '0.5rem' }} />
-              <Skeleton height={20} width="60%" style={{ marginBottom: '1.5rem' }} />
-              <Skeleton height={40} width="120px" />
+              <Skeleton height={40} width="120px" style={{ marginTop: '1.5rem' }} />
             </div>
           ))}
         </div>
@@ -287,12 +244,12 @@ const WAECPage = () => {
   }
 
   return (
-    <Container data-aos="zoom-in-left" data-aos-anchor-placement="top-center"data-aos-duration="800">
+    <Container data-aos="zoom-in" data-aos-anchor-placement="top-center"data-aos-duration="800">
       <HeroSection image={heroImages[currentHeroImage]}>
         <HeroContent>
-          <HeroTitle>WAEC Preparation</HeroTitle>
+          <HeroTitle>NECO Preparation</HeroTitle>
           <HeroSubtitle>
-            Get ready for WAEC with our comprehensive subject resources and practice questions.
+            Comprehensive resources and practice questions for all NECO subjects
           </HeroSubtitle>
         </HeroContent>
       </HeroSection>
@@ -319,11 +276,10 @@ const WAECPage = () => {
       <Grid>
         {filteredSubjects.map((subject, index) => (
           <Card key={index}>
-            <h2>{subject.name}</h2>
-            <p>Topics: {subject.topics}</p>
-            <p>Category: <strong>{subject.category}</strong></p>
-            <StartButton to={`/subjects/${subject.name.toLowerCase().replace(/\s+/g, '-')}`}>
-              Start Learning
+            <h3>{subject.name}</h3>
+            <p>{subject.topics} topics available</p>
+            <StartButton to={`/neco/subjects/${subject.name.toLowerCase().replace(/ /g, '-')}`}>
+              Start Practice
             </StartButton>
           </Card>
         ))}
@@ -332,4 +288,5 @@ const WAECPage = () => {
   );
 };
 
-export default WAECPage;
+export default NECOPrepPage;
+

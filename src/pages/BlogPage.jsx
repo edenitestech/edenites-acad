@@ -20,8 +20,9 @@ const BlogContainer = styled.div`
   z-index: 2;
 `;
 
+// Updated BlogHero styled component
 const BlogHero = styled.div`
-  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+  background: linear-gradient(rgba(43, 88, 118, 0.8), rgba(76, 175, 80, 0.8)), 
               url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
   background-size: cover;
   background-position: center;
@@ -35,6 +36,10 @@ const BlogHero = styled.div`
   border-radius: 12px;
   margin-bottom: 3rem;
   padding: 2rem;
+  
+  @media (max-width: 768px) {
+    height: 300px;
+  }
 `;
 
 const HeroTitle = styled.h1`

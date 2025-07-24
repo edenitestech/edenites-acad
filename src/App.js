@@ -24,6 +24,7 @@ import AccountSettings from './pages/Dashboard/AccountSettings';
 import CBTExamsPage from './pages/CBTExamsPage';
 import JAMBPage from './pages/JAMBPage';
 import WAECPage from './pages/WAECPage';
+import NECOPage from './pages/NECOPage';
 import ITSoftwarePage from './pages/ITSoftwarePage';
 import FashionDesignPage from './pages/FashionDesignPage';
 import LeatherCraftingPage from './pages/LeatherCraftingPage';
@@ -69,6 +70,7 @@ function App() {
             <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
             <Route path="/exams/jamb" element={<JAMBPage />} />
             <Route path="/exams/waec" element={<WAECPage />} />
+            <Route path="/exams/neco" element={<NECOPage />} />
             <Route path="/leather-crafting" element={<LeatherCraftingPage />} />
             <Route path="/fashion-design" element={<FashionDesignPage />} />
             <Route path="/it-software" element={<ITSoftwarePage />} />

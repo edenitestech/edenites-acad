@@ -1,3 +1,4 @@
+// src/components/pages/ContactPage.jsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
@@ -20,8 +21,9 @@ const ContactContainer = styled.div`
   z-index: 2;
 `;
 
+// Update the HeroSection styled component in ContactPage.jsx
 const ContactHero = styled.div`
-  background: linear-gradient(135deg, rgba(53, 117, 156, 0.74), rgba(154, 223, 156, 0.72)),
+  background: linear-gradient(135deg, rgba(43, 88, 118, 0.8), rgba(76, 175, 80, 0.8)),
               url('https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
   background-size: cover;
   background-position: center;
@@ -36,6 +38,11 @@ const ContactHero = styled.div`
   margin-bottom: 3rem;
   padding: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 768px) {
+    height: 250px;
+    background-position: 70% center;
+  }
 `;
 
 const HeroTitle = styled.h1`

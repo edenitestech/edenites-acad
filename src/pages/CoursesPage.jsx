@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { CourseCard } from '../components/CourseCard/CourseCard';
+import CourseCard from '../components/CourseCard/CourseCard';
 import styled from 'styled-components';
 import api from '../services/api';
 import { COURSES } from '../services/endpoints';
 import Wave from '../components/Wave/Wave';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { ENROLLMENTS } from '../services/endpoints';
 
 const CoursesSection = styled.section`
   position: relative;
@@ -151,6 +155,9 @@ const CoursesPage = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [enrolling, setEnrolling] = useState({});
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -175,6 +182,39 @@ const CoursesPage = () => {
 
     fetchCourses();
   }, []);
+
+  const handleEnrollCourse = async (courseId) => {
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setEnrolling(prev => ({ ...prev, [courseId]: true }));
+      await api.post(ENROLLMENTS, { course: courseId });
+      
+      // Update the course in state
+      setCourses(prevCourses => 
+        prevCourses.map(course => 
+          course.id === courseId 
+            ? { ...course, isEnrolled: true } 
+            : course
+        )
+      );
+
+      toast.success('Successfully enrolled in course!');
+      
+      // Refresh enrolled courses in MyCourses
+      if (window.refreshEnrolledCourses) {
+        window.refreshEnrolledCourses();
+      }
+    } catch (err) {
+      console.error('Enrollment error:', err);
+      toast.error('Failed to enroll. Please try again.');
+    } finally {
+      setEnrolling(prev => ({ ...prev, [courseId]: false }));
+    }
+  };
 
   if (loading) {
     return (
@@ -270,7 +310,10 @@ const CoursesPage = () => {
                   rating: course.average_rating || 4.5,
                   reviews: course.review_count || 0,
                   students: course.enrollment_count || 0,
-                }} 
+                }}
+                onEnroll={handleEnrollCourse}
+                isLoading={enrolling[course.id] || false}
+                isEnrolled={course.isEnrolled || false}
               />
             ))}
           </CoursesGrid>
@@ -281,5 +324,4 @@ const CoursesPage = () => {
     </CoursesSection>
   );
 };
-
 export default CoursesPage;
