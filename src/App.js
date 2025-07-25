@@ -34,14 +34,19 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize AOS with proper configuration
     AOS.init({
-      duration: 1000,
+      duration: 800,
       once: true,
+      offset: 100,
+      easing: 'ease-in-out',
+      mirror: false, // Important to prevent fade-out issues
     });
 
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000);
+      AOS.refresh(); // Refresh AOS after content loads
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, []);

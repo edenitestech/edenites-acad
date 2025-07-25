@@ -1,6 +1,6 @@
-// ========== WAECPrepPage.jsx ==========
+// src/pages/WAECPage.jsx
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -12,19 +12,9 @@ const heroImages = [
   'https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3'
 ];
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
 
 const HeroSection = styled.div`
-  height: 400px;
+  height: 500px;
   background-size: cover;
   background-position: center;
   background-image: url(${props => props.image});
@@ -58,7 +48,6 @@ const HeroTitle = styled.h1`
   font-size: 3rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   margin-bottom: 1rem;
-  animation: ${fadeIn} 1s ease-out;
   
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -69,7 +58,6 @@ const HeroSubtitle = styled.p`
   color: white;
   font-size: 1.2rem;
   margin-bottom: 2rem;
-  animation: ${fadeIn} 1s ease-out 0.2s;
   
   @media (max-width: 768px) {
     font-size: 1rem;
@@ -82,40 +70,6 @@ const Container = styled.div`
   padding: 2rem;
 `;
 
-/*
-const Hero = styled.section`
-  padding: 2rem 1rem;
-  margin-bottom: 1rem;
-  text-align: center;
-
-  h1 {
-    font-size: 3rem;
-    color: var(--head-color);
-    margin-bottom: 1rem;
-    font-style: italic;
-
-    @media (max-width: 768px) {
-      font-size: 2rem;
-    }
-
-    @media (max-width: 480px) {
-      font-size: 1.4rem;
-    }
-  }
-
-  p {
-    font-size: 1.2rem;
-    color: var(--font-secondary);
-    max-width: 700px;
-    margin: 0 auto;
-
-    @media (max-width: 480px) {
-      font-size: 0.85rem;
-    }
-  }
-`;
-*/
-
 const SearchBar = styled.input`
   width: 100%;
   max-width: 500px;
@@ -123,7 +77,7 @@ const SearchBar = styled.input`
   display: block;
   padding: 0.8rem 1rem;
   font-size: 1rem;
-  border: 1px solid var(--head-color);
+  border: 1px solid green;
   border-radius: 4px;
   outline: none;
 
@@ -176,16 +130,17 @@ const StartButton = styled(Link)`
   display: inline-block;
   background: var(--font-color);
   color: var(--head-color);
-  border: 1px solid var(--head-color);
+  border: 1px solid green;
   padding: 0.6rem 1.2rem;
   border-radius: 4px;
   font-weight: 600;
   transition: 0.3s;
   cursor: pointer;
   margin-top: 1rem;
+  text-decoration: none; /* ADDED THIS LINE */
 
   &:hover {
-    background: var(--head-color);
+    background: #c2c2b6ff;
     color: var(--font-color);
     box-shadow: inset 0 -3.25em 0 0 var(--head-color);
   }
@@ -287,11 +242,12 @@ const WAECPage = () => {
   }
 
   return (
-    <Container data-aos="zoom-in-left" data-aos-anchor-placement="top-center"data-aos-duration="800">
+    // FIXED DATA-AOS ATTRIBUTE
+    <Container>
       <HeroSection image={heroImages[currentHeroImage]}>
         <HeroContent>
-          <HeroTitle>WAEC Preparation</HeroTitle>
-          <HeroSubtitle>
+          <HeroTitle data-aos="fade-up" data-aos-delay="100">WAEC Preparation</HeroTitle>
+          <HeroSubtitle data-aos="fade-up" data-aos-delay="200">
             Get ready for WAEC with our comprehensive subject resources and practice questions.
           </HeroSubtitle>
         </HeroContent>
@@ -302,23 +258,12 @@ const WAECPage = () => {
         placeholder="Search by subject or category (e.g., science, arts)..."
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
-        style={{
-          border: '2px solid #3182ce',
-          padding: '1rem',
-          fontSize: '1rem',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          transition: 'all 0.3s ease',
-          background: 'white',
-          '&:focus': {
-            borderColor: '#3182ce',
-            boxShadow: '0 0 0 3px rgba(49, 130, 206, 0.3)'
-          }
-        }}
       />
 
       <Grid>
         {filteredSubjects.map((subject, index) => (
-          <Card key={index}>
+          <Card key={index} data-aos="fade-up"
+            data-aos-delay={100 * (index % 3)}>
             <h2>{subject.name}</h2>
             <p>Topics: {subject.topics}</p>
             <p>Category: <strong>{subject.category}</strong></p>

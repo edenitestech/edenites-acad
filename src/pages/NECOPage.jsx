@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -11,20 +12,8 @@ const heroImages = [
   'https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3'
 ];
 
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
 const HeroSection = styled.div`
-  height: 400px;
+  height: 500px;
   background-size: cover;
   background-position: center;
   background-image: url(${props => props.image});
@@ -58,7 +47,6 @@ const HeroTitle = styled.h1`
   font-size: 3rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   margin-bottom: 1rem;
-  animation: ${fadeIn} 1s ease-out;
   
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -69,7 +57,6 @@ const HeroSubtitle = styled.p`
   color: white;
   font-size: 1.2rem;
   margin-bottom: 2rem;
-  animation: ${fadeIn} 1s ease-out 0.2s;
   
   @media (max-width: 768px) {
     font-size: 1rem;
@@ -89,7 +76,7 @@ const SearchBar = styled.input`
   display: block;
   padding: 0.8rem 1rem;
   font-size: 1rem;
-  border: 1px solid var(--head-color);
+  border: 1px solid green;
   border-radius: 4px;
   outline: none;
 
@@ -142,7 +129,7 @@ const StartButton = styled(Link)`
   display: inline-block;
   background: var(--font-color);
   color: var(--head-color);
-  border: 1px solid var(--head-color);
+  border: 1px solid green;
   padding: 0.6rem 1.2rem;
   border-radius: 4px;
   font-weight: 600;
@@ -152,7 +139,7 @@ const StartButton = styled(Link)`
   margin-top: 1rem;
 
   &:hover {
-    background: var(--head-color);
+    background: #c2c2b6ff;
     color: var(--font-color);
     box-shadow: inset 0 -3.25em 0 0 var(--head-color);
   }
@@ -244,11 +231,12 @@ const NECOPrepPage = () => {
   }
 
   return (
-    <Container data-aos="zoom-in" data-aos-anchor-placement="top-center"data-aos-duration="800">
+    // FIXED DATA-AOS ATTRIBUTE
+    <Container data-aos="zoom-in" data-aos-anchor-placement="top-center" data-aos-duration="800">
       <HeroSection image={heroImages[currentHeroImage]}>
         <HeroContent>
-          <HeroTitle>NECO Preparation</HeroTitle>
-          <HeroSubtitle>
+          <HeroTitle data-aos="fade-up" data-aos-delay="100">NECO Preparation</HeroTitle>
+          <HeroSubtitle data-aos="fade-up" data-aos-delay="200">
             Comprehensive resources and practice questions for all NECO subjects
           </HeroSubtitle>
         </HeroContent>
@@ -259,23 +247,12 @@ const NECOPrepPage = () => {
         placeholder="Search by subject or category (e.g., science, arts)..."
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
-        style={{
-          border: '2px solid #3182ce',
-          padding: '1rem',
-          fontSize: '1rem',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          transition: 'all 0.3s ease',
-          background: 'white',
-          '&:focus': {
-            borderColor: '#3182ce',
-            boxShadow: '0 0 0 3px rgba(49, 130, 206, 0.3)'
-          }
-        }}
       />
 
       <Grid>
         {filteredSubjects.map((subject, index) => (
-          <Card key={index}>
+          <Card key={index} data-aos="fade-up"
+            data-aos-delay={100 * (index % 3)}>
             <h3>{subject.name}</h3>
             <p>{subject.topics} topics available</p>
             <StartButton to={`/neco/subjects/${subject.name.toLowerCase().replace(/ /g, '-')}`}>
@@ -289,4 +266,3 @@ const NECOPrepPage = () => {
 };
 
 export default NECOPrepPage;
-
